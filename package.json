@@ -7,7 +7,7 @@
     "buildRust": "cargo build --manifest-path node_rust/Cargo.toml",
     "runRust": "./node_rust/target/debug/main",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "babel-node index.js && buildRust && runRust"
+    "start": "babel-node src/index.js && yarn buildRust && yarn runRust"
   },
   "author": "",
   "license": "ISC",

@@ -1,3 +1,4 @@
+
 extern crate serde_json;
 use serde::Deserialize;
 use serde::Serialize;
@@ -5,7 +6,7 @@ use std::fs::File;
 use std::io::Read;
 
 #[derive(Deserialize, Debug, Serialize)]
-struct Rule {
+struct Data {
     node: bool,
     rust: String,
 }
@@ -16,7 +17,7 @@ fn main() {
 
     file.read_to_string(&mut data_string).unwrap();
 
-    let mut parsed_data: Rule =
+    let mut parsed_data: Data =
         serde_json::from_str(&data_string).expect("JSON was not well-formatted");
 
     if parsed_data.node {

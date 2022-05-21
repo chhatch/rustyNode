@@ -1,0 +1,12 @@
+[package]
+name = "node_rust"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "main"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1.0.104", features = ["derive"] }
+serde_json = "1.0.48"

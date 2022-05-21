@@ -1,0 +1,20 @@
+{
+  "name": "rustynode",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "buildRust": "cargo build --manifest-path node_rust/Cargo.toml",
+    "runRust": "./node_rust/target/debug/main",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "babel-node index.js && buildRust && runRust"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.18.0",
+    "@babel/node": "^7.17.10",
+    "@babel/preset-env": "^7.18.0"
+  },
+  "type": "module"
+}

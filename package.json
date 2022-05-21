@@ -2,7 +2,7 @@
   "name": "rustynode",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "buildRust": "cargo build --manifest-path node_rust/Cargo.toml",
     "runRust": "./node_rust/target/debug/main",
@@ -16,5 +16,8 @@
     "@babel/node": "^7.17.10",
     "@babel/preset-env": "^7.18.0"
   },
+  "files": [
+    "rustTemplate"
+  ],
   "type": "module"
 }

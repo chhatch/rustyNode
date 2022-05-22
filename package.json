@@ -23,5 +23,8 @@
     "ruleParser/index",
     "rustWriter/index"
   ],
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "lodash-es": "^4.17.21"
+  }
 }

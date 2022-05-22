@@ -1,3 +1,5 @@
+import { mapValues } from "lodash-es";
+
 function parseStatement(s) {
   const splitString = s.split(/\s+/);
   if (splitString.length !== 3)
@@ -6,9 +8,4 @@ function parseStatement(s) {
   return { lhs, operator, rhs };
 }
 
-export function parseRuleObject(obj) {
-  return Object.entries(obj).reduce(
-    (acc, [key, value]) => ({ ...acc, [key]: parseStatement(value) }),
-    {}
-  );
-}
+export const parseRuleObject = (obj) => mapValues(obj, parseStatement);

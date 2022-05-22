@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.compileRust = void 0;
+const lodash_1 = require("lodash");
 const imports = `extern crate serde_json;
 use serde::Deserialize;
 use serde::Serialize;
@@ -38,6 +39,8 @@ const processAndWrite = `let processed_data_string = serde_json::to_string_prett
 const fnClose = `}`;
 function compileRust(rule) {
     let stringParts = [imports, dataStruct, fnOpen, readAndParse];
+    const dataStructure = generateDataStructure(rule);
+    console.log(dataStructure);
     if (rule.if)
         stringParts.push(ifStatement);
     if (rule.else)
@@ -67,4 +70,33 @@ function replaceVariables(rule, rustString) {
 }
 function stripQuotes(s) {
     return s.replace(/'|"/g, "");
+}
+function generateDataStructure(rule) {
+    return Object.values(rule).reduce((acc, { lhs, rhs }) => {
+        if (/\.|\[/.test(lhs))
+            throw new Error(`Nested properties not supported: ${lhs}`);
+        const rhsType = getType(rhs);
+        if (!acc[lhs]) {
+            acc[lhs] = { type: rhsType };
+        }
+        else if (acc[lhs].type !== rhsType) {
+            throw new Error(`Property type mutation not supported: ${lhs}`);
+        }
+        return acc;
+    }, {});
+}
+function getType(value) {
+    if (/^'\w+'$/.test(value))
+        return "string";
+    if ((0, lodash_1.isFinite)(Number(value)))
+        return "number";
+    if (isBoolean(value))
+        return "boolean";
+    throw new Error(`Value type not supported: ${value}`);
+}
+function isBoolean(value) {
+    const norm = value.toLowerCase();
+    if (norm === "true" || norm === "false")
+        return true;
+    return false;
 }

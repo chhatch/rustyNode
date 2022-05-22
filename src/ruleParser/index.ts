@@ -1,6 +1,6 @@
 import { mapValues } from "lodash";
 
-function parseStatement(s) {
+function parseStatement(s: string) {
   const splitString = s.split(/\s+/);
   if (splitString.length !== 3)
     throw new Error(`Expected 3 parts. Invalid statement ${s}`);
@@ -8,4 +8,4 @@ function parseStatement(s) {
   return { lhs, operator, rhs };
 }
 
-export const parseRuleObject = (obj) => mapValues(obj, parseStatement);
+export const parseRuleObject = (obj: {}) => mapValues(obj, parseStatement);

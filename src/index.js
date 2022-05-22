@@ -1,12 +1,9 @@
 import { readFileSync, writeFileSync } from "fs";
 import { rustWriter } from "./rustWriter/index.js";
-import { parseStatement } from "./ruleParser/index.js";
+import { parseRuleObject } from "./ruleParser/index.js";
 
 const rule = JSON.parse(readFileSync("rule.json", "utf8"));
-const parsedRule = Object.entries(rule).reduce(
-  (acc, [key, value]) => ({ ...acc, [key]: parseStatement(value) }),
-  {}
-);
+const parsedRule = parseRuleObject(rule);
 
 const conditionVar = parsedRule.if.lhs;
 const targetVar = parsedRule.then.lhs;

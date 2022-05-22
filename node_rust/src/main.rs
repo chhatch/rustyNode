@@ -16,13 +16,12 @@ fn main() {
 
     let mut parsed_data: Data =
         serde_json::from_str(&data_string).expect("JSON was not well-formatted");
-if parsed_data.node {
+    if parsed_data.node {
         parsed_data.rust = "win".to_string()
-    }
-else {
+    } else {
         parsed_data.rust = "fail".to_string()
     }
-let processed_data_string = serde_json::to_string_pretty(&parsed_data).unwrap();
+    let processed_data_string = serde_json::to_string_pretty(&parsed_data).unwrap();
     println!("{}", processed_data_string);
     fs::write("output.json", processed_data_string).expect("Unable to write file");
 }

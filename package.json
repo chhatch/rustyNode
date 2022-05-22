@@ -6,9 +6,10 @@
   "scripts": {
     "runNode": "babel-node src/index.js",
     "buildRust": "cargo build --manifest-path node_rust/Cargo.toml",
+    "formatRust": "cargo fmt --manifest-path node_rust/Cargo.toml",
     "runRust": "./node_rust/target/debug/main",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "yarn runNode && yarn buildRust && yarn runRust"
+    "start": "yarn runNode && yarn formatRust && yarn buildRust && yarn runRust"
   },
   "author": "",
   "license": "ISC",

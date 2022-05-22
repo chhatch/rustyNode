@@ -7,6 +7,7 @@ use std::io::Read;
 struct Data {
     node: bool,
     rust: String,
+    ruby: String,
 }
 fn main() {
     let mut file = fs::File::open("input.json").unwrap();
@@ -19,7 +20,7 @@ fn main() {
     if parsed_data.node {
         parsed_data.rust = "win".to_string()
     } else {
-        parsed_data.rust = "fail".to_string()
+        parsed_data.ruby = "wow!".to_string()
     }
     let processed_data_string = serde_json::to_string_pretty(&parsed_data).unwrap();
     println!("{}", processed_data_string);

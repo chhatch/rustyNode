@@ -1,4 +1,5 @@
 {
-  "node": true,
-  "rust": "win"
+  "node": false,
+  "rust": "meh",
+  "ruby": "wow!"
 }

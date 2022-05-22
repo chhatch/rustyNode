@@ -1,1 +1,1 @@
-{ "node": true, "rust": "meh" }
+{ "node": false, "rust": "meh", "ruby": "hmm..." }

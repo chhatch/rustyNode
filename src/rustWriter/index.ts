@@ -7,13 +7,6 @@ use std::fs;
 use std::io::Read;
 `;
 
-const dataStruct = `#[derive(Deserialize, Debug, Serialize)]
-struct Data {
-    CONDITION_VAR: bool,
-    TARGET_VAR: String,
-}
-`;
-
 const fnOpen = `fn main() {
 `;
 
@@ -32,7 +25,7 @@ const ifStatement = `if IF_CONDITION {
 `;
 
 const elseStatement = `else {
-        THEN_VAR = ELSE_VALUE
+        ELSE_VAR = ELSE_VALUE
     }
 `;
 
@@ -44,17 +37,26 @@ const processAndWrite = `let processed_data_string = serde_json::to_string_prett
 const fnClose = `}`;
 
 export function compileRust(rule: Rule): string {
-  let stringParts = [imports, dataStruct, fnOpen, readAndParse];
   const dataStructure = generateDataStructure(rule);
+  let stringParts = [
+    imports,
+    buildRustStruct(dataStructure),
+    fnOpen,
+    readAndParse,
+  ];
   console.log(dataStructure);
 
   if (rule.if) stringParts.push(ifStatement);
   if (rule.else) stringParts.push(elseStatement);
   stringParts.push(processAndWrite, fnClose);
-  return replaceVariables(rule, stringParts.join(""));
+  return replaceVariables(rule, stringParts.join(""), dataStructure);
 }
 
-function replaceVariables(rule: Rule, rustString: string) {
+function replaceVariables(
+  rule: Rule,
+  rustString: string,
+  dataStructure: DataStructure
+) {
   if (!rule.if || !rule.then)
     throw new Error("Rule must have if and then for now.");
   const conditionVar = rule.if.lhs;
@@ -64,19 +66,33 @@ function replaceVariables(rule: Rule, rustString: string) {
 
   rustString = rustString
     .replaceAll("IF_CONDITION", "parsed_data." + conditionVar)
-    .replaceAll("CONDITION_VAR", conditionVar)
-    .replaceAll("TARGET_VAR", targetVar)
     .replaceAll("THEN_VAR", thenVar)
-    .replaceAll("THEN_VALUE", '"' + thenValue + '".to_string()');
+    .replaceAll(
+      "THEN_VALUE",
+      rustValueString(thenValue, rule.then.lhs, dataStructure)
+    );
 
   if (rule.else) {
+    const elseVar = rule.else.lhs;
     const elseValue = stripQuotes(rule.else.rhs);
-    rustString = rustString.replaceAll(
-      "ELSE_VALUE",
-      '"' + elseValue + '".to_string()'
-    );
+    rustString = rustString
+      .replaceAll(
+        "ELSE_VALUE",
+        rustValueString(elseValue, elseVar, dataStructure)
+      )
+      .replaceAll("ELSE_VAR", "parsed_data." + elseVar);
   }
   return rustString;
+}
+
+function rustValueString(
+  value: string,
+  dataKey: string,
+  dataStructure: DataStructure
+): string {
+  const type = dataStructure[dataKey].type;
+  if (type === "string") return '"' + value + '".to_string()';
+  return value;
 }
 
 function stripQuotes(s: string) {
@@ -87,28 +103,53 @@ interface Rule {
   [key: string]: { lhs: string; operator: string; rhs: string };
 }
 
+type DataTypesEnum = "number" | "boolean" | "string";
 interface DataStructure {
-  [key: string]: { type: string };
+  [key: string]: { type: DataTypesEnum; mutable: boolean };
 }
 
 function generateDataStructure(rule: Rule) {
-  return Object.values(rule).reduce((acc: DataStructure, { lhs, rhs }) => {
-    if (/\.|\[/.test(lhs))
-      throw new Error(`Nested properties not supported: ${lhs}`);
+  return Object.values(rule).reduce(
+    (acc: DataStructure, { lhs, operator, rhs }) => {
+      if (/\.|\[/.test(lhs))
+        throw new Error(`Nested properties not supported: ${lhs}`);
 
-    const rhsType = getType(rhs);
+      const rhsType = getType(rhs);
+      const mutable = operator === "=";
 
-    if (!acc[lhs]) {
-      acc[lhs] = { type: rhsType };
-    } else if (acc[lhs].type !== rhsType) {
-      throw new Error(`Property type mutation not supported: ${lhs}`);
-    }
-    return acc;
-  }, {});
+      if (!acc[lhs]) {
+        acc[lhs] = { type: rhsType, mutable };
+      } else if (acc[lhs].type !== rhsType) {
+        throw new Error(`Property type mutation not supported: ${lhs}`);
+      }
+      return acc;
+    },
+    {}
+  );
 }
 
-function getType(value: string): string {
-  if (/^'\w+'$/.test(value)) return "string";
+const rustTypes = {
+  boolean: "bool",
+  string: "String",
+  number: "i32",
+};
+
+function buildRustStruct(dataStructure: DataStructure): string {
+  const structString = `#[derive(Deserialize, Debug, Serialize)]
+struct Data {
+${Object.entries(dataStructure)
+  .map(
+    ([key, { type }]) => `${key}: ${rustTypes[type]},
+`
+  )
+  .join("")}}
+`;
+
+  return structString;
+}
+
+function getType(value: string) {
+  if (/^'.+'$/.test(value)) return "string";
   if (isFinite(Number(value))) return "number";
   if (isBoolean(value)) return "boolean";
   throw new Error(`Value type not supported: ${value}`);

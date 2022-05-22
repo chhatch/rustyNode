@@ -1,6 +1,6 @@
 # rustyNode
 
-Let's explore using node to compile rust from a json template!
+Let's explore using typescript to compile rust from a json template!
 
 ## Installation
 

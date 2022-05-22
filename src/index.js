@@ -1,17 +1,30 @@
 import { readFileSync, writeFileSync } from "fs";
-import { boilerPlate } from "./rustTemplate.js";
+import { rustWriter } from "./rustWriter/index.js";
+import { parseStatement } from "./ruleParser/index.js";
 
 const rule = JSON.parse(readFileSync("rule.json", "utf8"));
-const splitIf = rule.if.split(" == ");
-const splitThen = rule.then.split(" = ");
-const splitElse = rule.else.split(" = ");
-const conditionVar = splitIf[0];
-const targetVar = splitThen[0];
-const thenVar = "parsed_data." + targetVar;
-const thenValue = stripQuotes(splitThen[1]);
-const elseValue = stripQuotes(splitElse[1]);
+const parsedRule = Object.entries(rule).reduce(
+  (acc, [key, value]) => ({ ...acc, [key]: parseStatement(value) }),
+  {}
+);
 
-const compiledRust = boilerPlate
+const conditionVar = parsedRule.if.lhs;
+const targetVar = parsedRule.then.lhs;
+const thenVar = "parsed_data." + targetVar;
+const thenValue = stripQuotes(parsedRule.then.rhs);
+const elseValue = stripQuotes(parsedRule.else.rhs);
+
+const compiledRust = [
+  rustWriter.imports,
+  rustWriter.dataStruct,
+  rustWriter.fnOpen,
+  rustWriter.readAndParse,
+  rustWriter.if,
+  rustWriter.else,
+  rustWriter.processAndWrite,
+  rustWriter.fnClose,
+]
+  .join("")
   .replaceAll("IF_CONDITION", "parsed_data." + conditionVar)
   .replaceAll("CONDITION_VAR", conditionVar)
   .replaceAll("TARGET_VAR", targetVar)

@@ -7,7 +7,9 @@ use std::io::Read;
 struct Data {
     node: bool,
     rust: String,
-    ruby: String,
+    ruby: i32,
+    dayOfWeek: String,
+    price: i32,
 }
 fn main() {
     let mut file = fs::File::open("input.json").unwrap();
@@ -17,10 +19,13 @@ fn main() {
 
     let mut parsed_data: Data =
         serde_json::from_str(&data_string).expect("JSON was not well-formatted");
-    if parsed_data.node {
+    if parsed_data.node == true {
         parsed_data.rust = "win".to_string()
     } else {
-        parsed_data.ruby = "wow!".to_string()
+        parsed_data.ruby = 1337
+    }
+    if parsed_data.dayOfWeek != "Friday".to_string() {
+        parsed_data.price = 5
     }
     let processed_data_string = serde_json::to_string_pretty(&parsed_data).unwrap();
     println!("{}", processed_data_string);

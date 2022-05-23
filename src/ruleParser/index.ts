@@ -1,4 +1,4 @@
-import { mapValues } from "lodash";
+import { isArray, mapValues } from "lodash";
 
 function parseStatement(s: string) {
   const splitString = s.split(/\s+/);
@@ -8,4 +8,9 @@ function parseStatement(s: string) {
   return { lhs, operator, rhs };
 }
 
-export const parseRuleObject = (obj: {}) => mapValues(obj, parseStatement);
+export const parseRules = (rules: {} | {}[]) =>
+  toArray(rules).map((rule) => mapValues(rule, parseStatement));
+
+function toArray(maybeArray: any) {
+  return isArray(maybeArray) ? maybeArray : [maybeArray];
+}

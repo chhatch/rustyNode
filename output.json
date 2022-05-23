@@ -1,5 +1,7 @@
 {
   "node": false,
   "rust": "meh",
-  "ruby": "wow!"
+  "ruby": 1337,
+  "dayOfWeek": "Wednesday",
+  "price": 5
 }

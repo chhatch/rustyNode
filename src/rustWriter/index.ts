@@ -1,4 +1,5 @@
 import { isFinite } from "lodash";
+import { DataStructure, ParsedRule } from "../types";
 
 const imports = `extern crate serde_json;
 use serde::Deserialize;
@@ -20,12 +21,12 @@ const readAndParse = `    let mut file = fs::File::open("input.json").unwrap();
 `;
 
 const ifStatement = `if IF_CONDITION {
-        THEN_VAR = THEN_VALUE
+        VAR = VALUE
     }
 `;
 
 const elseStatement = `else {
-        ELSE_VAR = ELSE_VALUE
+        VAR = VALUE
     }
 `;
 
@@ -36,8 +37,8 @@ const processAndWrite = `let processed_data_string = serde_json::to_string_prett
 
 const fnClose = `}`;
 
-export function compileRust(rule: Rule): string {
-  const dataStructure = generateDataStructure(rule);
+export function compileRust(rules: ParsedRule[]): string {
+  const dataStructure = generateDataStructure(rules);
   let stringParts = [
     imports,
     buildRustStruct(dataStructure),
@@ -46,43 +47,36 @@ export function compileRust(rule: Rule): string {
   ];
   console.log(dataStructure);
 
-  if (rule.if) stringParts.push(ifStatement);
-  if (rule.else) stringParts.push(elseStatement);
-  stringParts.push(processAndWrite, fnClose);
-  return replaceVariables(rule, stringParts.join(""), dataStructure);
-}
+  for (let rule of rules) {
+    if (!rule.if || !rule.then)
+      throw new Error(`Rule must have if and then. Invalid rule: ${rule}`);
+    if (rule.if.operator !== "==" && rule.if.operator !== "!=")
+      throw new Error(`Invalid operator: ${rule.operator}`);
 
-function replaceVariables(
-  rule: Rule,
-  rustString: string,
-  dataStructure: DataStructure
-) {
-  if (!rule.if || !rule.then)
-    throw new Error("Rule must have if and then for now.");
-  const conditionVar = rule.if.lhs;
-  const targetVar = rule.then.lhs;
-  const thenVar = "parsed_data." + targetVar;
-  const thenValue = stripQuotes(rule.then.rhs);
+    const ifCondition = `parsed_data.${rule.if.lhs} ${
+      rule.if.operator
+    } ${rustValueString(rule.if.rhs, rule.if.lhs, dataStructure)}`;
+    stringParts.push(
+      ifStatement
+        .replace("IF_CONDITION", ifCondition)
+        .replace("VAR", "parsed_data." + rule.then.lhs)
+        .replace(
+          "VALUE",
 
-  rustString = rustString
-    .replaceAll("IF_CONDITION", "parsed_data." + conditionVar)
-    .replaceAll("THEN_VAR", thenVar)
-    .replaceAll(
-      "THEN_VALUE",
-      rustValueString(thenValue, rule.then.lhs, dataStructure)
+          rustValueString(rule.then.rhs, rule.then.lhs, dataStructure)
+        )
     );
+    if (rule.else)
+      stringParts.push(
+        elseStatement.replace("VAR", "parsed_data." + rule.else.lhs).replace(
+          "VALUE",
 
-  if (rule.else) {
-    const elseVar = rule.else.lhs;
-    const elseValue = stripQuotes(rule.else.rhs);
-    rustString = rustString
-      .replaceAll(
-        "ELSE_VALUE",
-        rustValueString(elseValue, elseVar, dataStructure)
-      )
-      .replaceAll("ELSE_VAR", "parsed_data." + elseVar);
+          rustValueString(rule.else.rhs, rule.else.lhs, dataStructure)
+        )
+      );
   }
-  return rustString;
+  stringParts.push(processAndWrite, fnClose);
+  return stringParts.join("");
 }
 
 function rustValueString(
@@ -91,7 +85,7 @@ function rustValueString(
   dataStructure: DataStructure
 ): string {
   const type = dataStructure[dataKey].type;
-  if (type === "string") return '"' + value + '".to_string()';
+  if (type === "string") return '"' + stripQuotes(value) + '".to_string()';
   return value;
 }
 
@@ -99,33 +93,28 @@ function stripQuotes(s: string) {
   return s.replace(/'|"/g, "");
 }
 
-interface Rule {
-  [key: string]: { lhs: string; operator: string; rhs: string };
-}
+function generateDataStructure(rules: ParsedRule[]): DataStructure {
+  let dataStructure = {};
+  for (let rule of rules) {
+    dataStructure = Object.values(rule).reduce(
+      (dataStructure: DataStructure, { lhs, operator, rhs }) => {
+        if (/\.|\[/.test(lhs))
+          throw new Error(`Nested properties not supported: ${lhs}`);
 
-type DataTypesEnum = "number" | "boolean" | "string";
-interface DataStructure {
-  [key: string]: { type: DataTypesEnum; mutable: boolean };
-}
+        const rhsType = getType(rhs);
+        const mutable = operator === "=";
 
-function generateDataStructure(rule: Rule) {
-  return Object.values(rule).reduce(
-    (acc: DataStructure, { lhs, operator, rhs }) => {
-      if (/\.|\[/.test(lhs))
-        throw new Error(`Nested properties not supported: ${lhs}`);
-
-      const rhsType = getType(rhs);
-      const mutable = operator === "=";
-
-      if (!acc[lhs]) {
-        acc[lhs] = { type: rhsType, mutable };
-      } else if (acc[lhs].type !== rhsType) {
-        throw new Error(`Property type mutation not supported: ${lhs}`);
-      }
-      return acc;
-    },
-    {}
-  );
+        if (!dataStructure[lhs]) {
+          dataStructure[lhs] = { type: rhsType, mutable };
+        } else if (dataStructure[lhs].type !== rhsType) {
+          throw new Error(`Property type mutation not supported: ${lhs}`);
+        }
+        return dataStructure;
+      },
+      dataStructure
+    );
+  }
+  return dataStructure;
 }
 
 const rustTypes = {

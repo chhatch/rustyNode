@@ -1,1 +1,0 @@
-{ "if": "node == true", "then": "rust = 'win'", "else": "ruby = 'wow!'" }

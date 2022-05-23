@@ -1,0 +1,4 @@
+[
+  { "if": "node == true", "then": "rust = 'win'", "else": "ruby = 1337" },
+  { "if": "dayOfWeek != 'Friday'", "then": "price = 15" }
+]

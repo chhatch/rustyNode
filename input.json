@@ -1,1 +1,7 @@
-{ "node": false, "rust": "meh", "ruby": "hmm..." }
+{
+  "node": false,
+  "rust": "meh",
+  "ruby": 5,
+  "dayOfWeek": "Wednesday",
+  "price": 10
+}

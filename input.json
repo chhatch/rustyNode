@@ -2,6 +2,6 @@
   "node": false,
   "rust": "meh",
   "ruby": 5,
-  "dayOfWeek": "Wednesday",
+  "day_of_week": "Wednesday",
   "price": 10
 }

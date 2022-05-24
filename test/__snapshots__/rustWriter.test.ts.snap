@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`compileRust should generate a rust file 1`] = `
+"extern crate serde_json;
+use serde::Deserialize;
+use serde::Serialize;
+use std::fs;
+use std::io::Read;
+#[derive(Deserialize, Debug, Serialize)]
+struct Data {
+ruby: i32,
+node: bool,
+rust: String,
+day_of_week: String,
+price: i32,
+}
+fn main() {
+    let mut file = fs::File::open(\\"input.json\\").unwrap();
+    let mut data_string = String::new();
+
+    file.read_to_string(&mut data_string).unwrap();
+
+    let mut parsed_data: Data =
+        serde_json::from_str(&data_string).expect(\\"JSON was not well-formatted\\");
+if parsed_data.node == true {
+        parsed_data.rust = \\"win\\".to_string()
+    }
+else {
+        parsed_data.ruby = 1337
+    }
+if parsed_data.day_of_week != \\"Friday\\".to_string() {
+        parsed_data.price = 15
+    }
+let processed_data_string = serde_json::to_string_pretty(&parsed_data).unwrap();
+    println!(\\"{}\\", processed_data_string);
+    fs::write(\\"output.json\\", processed_data_string).expect(\\"Unable to write file\\");
+}"
+`;

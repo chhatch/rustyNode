@@ -93,7 +93,7 @@ function stripQuotes(s: string) {
   return s.replace(/'|"/g, "");
 }
 
-function generateDataStructure(rules: ParsedRule[]): DataStructure {
+export function generateDataStructure(rules: ParsedRule[]): DataStructure {
   let dataStructure = {};
   for (let rule of rules) {
     dataStructure = Object.values(rule).reduce(
@@ -123,7 +123,7 @@ const rustTypes = {
   number: "i32",
 };
 
-function buildRustStruct(dataStructure: DataStructure): string {
+export function buildRustStruct(dataStructure: DataStructure): string {
   const structString = `#[derive(Deserialize, Debug, Serialize)]
 struct Data {
 ${Object.entries(dataStructure)

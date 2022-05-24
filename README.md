@@ -2,6 +2,19 @@
 
 Let's explore using typescript to compile rust from a json template!
 
+## Installation
+
+`yarn install`
+
+## Building
+
+`yarn build` will compile typescript to the dist folder
+
+## Running
+
+`yarn start`  
+ This will first run `dist/index.js` which reads a single json rule or array of rules from `rules.json` and compiles a rust program to `node_rust/main.rs` Then `cargo` will format build the rust code. Finally the rust program will run, reading data from `input.json`, executing the rule on it, and saving the results to `output.json`
+
 ## What's supported right now?
 
 - Only three data types are currently supported, number, string, and boolean.
@@ -21,15 +34,37 @@ Let's explore using typescript to compile rust from a json template!
 ]
 ```
 
-## Installation
+## Example
 
-`yarn install`
+Given this `rules.json`,
 
-## Building
+```json
+[
+  { "if": "node == true", "then": "rust = 'win'", "else": "ruby = 1337" },
+  { "if": "day_of_week != 'Friday'", "then": "price = 15" }
+]
+```
 
-`yarn build` will compile typescript to the dist folder
+and this `input.json`,
 
-## Running
+```json
+{
+  "node": false,
+  "rust": "meh",
+  "ruby": 5,
+  "day_of_week": "Wednesday",
+  "price": 10
+}
+```
 
-`yarn start`  
-This will first run `dist/index.js` which reads a single json rule or array of rules from `rules.json` and compiles a rust program to `node_rust/main.rs` Then `cargo` will format build the rust code. Finally the rust program will run, reading data from `input.json`, executing the rule on it, and saving the results to `output.json`
+running `yarn start` will generate and run a rust program that reads `input.json`, executes the rules, and produces this `output.json`,
+
+```json
+{
+  "node": false,
+  "rust": "meh",
+  "ruby": 1337,
+  "day_of_week": "Wednesday",
+  "price": 15
+}
+```

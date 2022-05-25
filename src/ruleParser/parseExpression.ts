@@ -2,19 +2,24 @@ import ExpressionParser, {
   ExpressionParserOptions,
   ExpressionThunk,
 } from "expressionparser/dist/ExpressionParser";
-import { isBoolean } from "lodash";
+import { DataStructure, DataTypesEnum } from "../types";
 
 interface ParsedExpr {
   value: string | number;
   rustString: string;
-  type: string;
+  type: DataTypesEnum;
+  lhs?: ParsedExpr;
+  operator?: string;
+  rhs?: ParsedExpr;
 }
+export const dataStructure = {} as DataStructure;
 
 const joinWith =
   (operator: string) => (a: ExpressionThunk, b: ExpressionThunk) => {
     const aParsed = a() as unknown as ParsedExpr;
     const bParsed = b() as unknown as ParsedExpr;
     const resultString = `${aParsed.rustString} ${operator} ${bParsed.rustString}`;
+    addTypeToDataStructure(aParsed.value as string, bParsed.type, operator);
     return parsedTerm(resultString, "done", resultString);
   };
 const testLanguage = {
@@ -76,11 +81,10 @@ const testLanguage = {
       default:
         throw new Error(`Unrecognized term: ${term}`);
     }
+    if (type == "variable") addKeysToDataStructure(term);
     return parsedTerm(value, type, rustString);
   },
 };
-
-const expr = "foo = 5 + 3 + bar".toUpperCase();
 
 function getType(value: string) {
   const lc = value.toLocaleLowerCase();
@@ -105,3 +109,23 @@ export const exprToRust = (expr: string): string => {
   ).expressionToValue(expr) as unknown as ParsedExpr;
   return parsedExpr.rustString;
 };
+
+function addKeysToDataStructure(term: string): void {
+  if (!dataStructure[term])
+    dataStructure[term] = { type: "unknown", mutable: false };
+}
+
+function addTypeToDataStructure(
+  term: string,
+  type: DataTypesEnum,
+  operator: string
+): void {
+  const dataTerm = dataStructure[term];
+  if (!dataTerm) throw new Error(`Key not found in data structure: ${term}`);
+  if (dataTerm.type != "unknown" && dataTerm.type != type)
+    throw new Error(`Property type mutation not supported: ${term}`);
+  if (operator == "=") dataTerm.mutable = true;
+  // todo: update this once term history is integrated
+  if (type == "done") dataTerm.type = "number";
+  else dataTerm.type = type;
+}

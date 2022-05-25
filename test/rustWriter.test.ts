@@ -1,50 +1,46 @@
-import {
-  buildRustStruct,
-  compileRust,
-  generateDataStructure,
-} from "../src/rustWriter";
+import { buildRustStruct, compileRust } from "../src/rustWriter";
 import { DataStructure, ParsedRule } from "../src/types";
 
-describe("generateDataStructure", () => {
-  it("should generate the data structure", () => {
-    const rules = [
-      {
-        else: {
-          lhs: "ruby",
-          operator: "=",
-          rhs: "1337",
-          rustString: "ruby = 1337",
-        },
-        if: {
-          lhs: "node",
-          operator: "==",
-          rhs: "true",
-          rustString: "node == true",
-        },
-        then: {
-          lhs: "rust",
-          operator: "=",
-          rhs: "'win'",
-          rustString: "rust = win.to_string()",
-        },
-      },
-      {
-        if: { lhs: "day_of_week", operator: "!=", rhs: "'Friday'" },
-        then: { lhs: "price", operator: "=", rhs: "15" },
-      },
-    ] as ParsedRule[];
+// describe("generateDataStructure", () => {
+//   it("should generate the data structure", () => {
+//     const rules = [
+//       {
+//         else: {
+//           lhs: "ruby",
+//           operator: "=",
+//           rhs: "1337",
+//           rustString: "ruby = 1337",
+//         },
+//         if: {
+//           lhs: "node",
+//           operator: "==",
+//           rhs: "true",
+//           rustString: "node == true",
+//         },
+//         then: {
+//           lhs: "rust",
+//           operator: "=",
+//           rhs: "'win'",
+//           rustString: "rust = win.to_string()",
+//         },
+//       },
+//       {
+//         if: { lhs: "day_of_week", operator: "!=", rhs: "'Friday'" },
+//         then: { lhs: "price", operator: "=", rhs: "15" },
+//       },
+//     ] as ParsedRule[];
 
-    const result = {
-      node: { type: "boolean", mutable: false },
-      rust: { type: "string", mutable: true },
-      ruby: { type: "number", mutable: true },
-      day_of_week: { type: "string", mutable: false },
-      price: { type: "number", mutable: true },
-    };
+//     const result = {
+//       node: { type: "boolean", mutable: false },
+//       rust: { type: "string", mutable: true },
+//       ruby: { type: "number", mutable: true },
+//       day_of_week: { type: "string", mutable: false },
+//       price: { type: "number", mutable: true },
+//     };
 
-    expect(generateDataStructure(rules)).toEqual(result);
-  });
-});
+//     expect(generateDataStructure(rules)).toEqual(result);
+//   });
+// });
 
 describe("buildRustStruct", () => {
   it("should build a rust struct", () => {

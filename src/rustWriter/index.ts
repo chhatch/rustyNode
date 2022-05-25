@@ -1,5 +1,6 @@
-import { has, isFinite } from "lodash";
+import { isFinite } from "lodash";
 import { DataStructure, ParsedRule } from "../types";
+import { dataStructure } from "../ruleParser/parseExpression";
 
 const imports = `extern crate serde_json;
 use serde::Deserialize;
@@ -38,14 +39,12 @@ const processAndWrite = `let processed_data_string = serde_json::to_string_prett
 const fnClose = `}`;
 
 export function compileRust(rules: ParsedRule[]): string {
-  const dataStructure = generateDataStructure(rules);
   const stringParts = [
     imports,
     buildRustStruct(dataStructure),
     fnOpen,
     readAndParse,
   ];
-  console.log(dataStructure);
 
   for (const rule of rules) {
     if (!rule.if || !rule.then)
@@ -85,30 +84,6 @@ function stripQuotes(s: string) {
   return s.replace(/'|"/g, "");
 }
 
-export function generateDataStructure(rules: ParsedRule[]): DataStructure {
-  let dataStructure = {};
-  for (let rule of rules) {
-    dataStructure = Object.values(rule).reduce(
-      (dataStructure: DataStructure, { lhs, operator, rhs }) => {
-        if (/\.|\[/.test(lhs))
-          throw new Error(`Nested properties not supported: ${lhs}`);
-
-        const rhsType = getType(rhs);
-        const mutable = operator === "=";
-
-        if (!dataStructure[lhs]) {
-          dataStructure[lhs] = { type: rhsType, mutable };
-        } else if (dataStructure[lhs].type !== rhsType) {
-          throw new Error(`Property type mutation not supported: ${lhs}`);
-        }
-        return dataStructure;
-      },
-      dataStructure
-    );
-  }
-  return dataStructure;
-}
-
 const rustTypes = {
   boolean: "bool",
   string: "String",
@@ -120,6 +95,7 @@ export function buildRustStruct(dataStructure: DataStructure): string {
 struct Data {
 ${Object.entries(dataStructure)
   .map(
+    // @ts-ignore
     ([key, { type }]) => `${key}: ${rustTypes[type]},
 `
   )

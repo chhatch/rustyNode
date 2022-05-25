@@ -6,8 +6,14 @@ export interface ParsedRule {
     rustString: string;
   };
 }
-
-export type DataTypesEnum = "number" | "boolean" | "string";
+// done will be moved to a state prop or something
+export type DataTypesEnum =
+  | "number"
+  | "boolean"
+  | "string"
+  | "variable"
+  | "unknown"
+  | "done";
 
 export interface DataStructure {
   [key: string]: { type: DataTypesEnum; mutable: boolean };

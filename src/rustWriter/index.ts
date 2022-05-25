@@ -138,7 +138,7 @@ ${Object.entries(dataStructure)
 }
 
 function getType(value: string) {
-  if (/^'.+'$/.test(value)) return "string";
+  if (/^('|").+\1$/.test(value)) return "string";
   if (isFinite(Number(value))) return "number";
   if (isBoolean(value)) return "boolean";
   throw new Error(`Value type not supported: ${value}`);

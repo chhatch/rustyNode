@@ -1,42 +1,15 @@
 import { isFinite } from "lodash";
 import { DataStructure, ParsedRule } from "../types";
 import { dataStructure } from "../ruleParser/parseExpression";
-
-const imports = `extern crate serde_json;
-use serde::Deserialize;
-use serde::Serialize;
-use std::fs;
-use std::io::Read;
-`;
-
-const fnOpen = `fn main() {
-`;
-
-const readAndParse = `    let mut file = fs::File::open("input.json").unwrap();
-    let mut data_string = String::new();
-
-    file.read_to_string(&mut data_string).unwrap();
-
-    let mut parsed_data: Data =
-        serde_json::from_str(&data_string).expect("JSON was not well-formatted");
-`;
-
-const ifStatement = `if IF_CONDITION {
-        THEN
-    }
-`;
-
-const elseStatement = `else {
-        ELSE
-    }
-`;
-
-const processAndWrite = `let processed_data_string = serde_json::to_string_pretty(&parsed_data).unwrap();
-    println!("{}", processed_data_string);
-    fs::write("output.json", processed_data_string).expect("Unable to write file");
-`;
-
-const fnClose = `}`;
+import {
+  elseStatement,
+  fnClose,
+  fnOpen,
+  ifStatement,
+  imports,
+  processAndWrite,
+  readAndParse,
+} from "./rustTemplates";
 
 export function compileRust(rules: ParsedRule[]): string {
   const stringParts = [

@@ -1,7 +1,8 @@
 {
-  "node": false,
-  "rust": "meh",
-  "ruby": 1337,
+  "node": true,
+  "rust": "win",
+  "ruby": 5,
   "day_of_week": "Wednesday",
-  "price": 15
+  "fee": 100,
+  "price": 110
 }

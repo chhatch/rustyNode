@@ -4,17 +4,24 @@ import ExpressionParser, {
 } from "expressionparser/dist/ExpressionParser";
 import { isBoolean } from "lodash";
 
-interface ParsedTerm {
+interface ParsedExpr {
   value: string | number;
   rustString: string;
   type: string;
 }
 
+const joinWith =
+  (operator: string) => (a: ExpressionThunk, b: ExpressionThunk) => {
+    const aParsed = a() as unknown as ParsedExpr;
+    const bParsed = b() as unknown as ParsedExpr;
+    const resultString = `${aParsed.rustString} ${operator} ${bParsed.rustString}`;
+    return parsedTerm(resultString, "done", resultString);
+  };
 const testLanguage = {
   INFIX_OPS: {
     "+": function (a: ExpressionThunk, b: ExpressionThunk) {
-      const aParsed = a() as unknown as ParsedTerm;
-      const bParsed = b() as unknown as ParsedTerm;
+      const aParsed = a() as unknown as ParsedExpr;
+      const bParsed = b() as unknown as ParsedExpr;
       if (aParsed.type === "number" && bParsed.type === "number") {
         // @ts-ignore
         const sumString = aParsed.value + bParsed.value;
@@ -22,14 +29,12 @@ const testLanguage = {
       }
       if (aParsed.type === "variable" || bParsed.type === "variable") {
         const resultString = `${aParsed.rustString} + ${bParsed.rustString}`;
-        return parsedTerm(resultString, "processed", resultString);
+        return parsedTerm(resultString, "done", resultString);
       }
     },
-    "=": function (a: ExpressionThunk, b: ExpressionThunk) {
-      const aParsed = a() as unknown as ParsedTerm;
-      const bParsed = b() as unknown as ParsedTerm;
-      return `${aParsed.rustString} = ${bParsed.rustString}`;
-    },
+    "=": joinWith("="),
+    "==": joinWith("=="),
+    "!=": joinWith("!="),
   },
   PREFIX_OPS: {
     POW: function (expr: ExpressionThunk) {
@@ -54,8 +59,7 @@ const testLanguage = {
     switch (type) {
       case "string":
         value = term.replace(/^'/, '"').replace(/'$/, '"');
-        rustString =
-          term.replace(/^('|")/, "").replace(/('|")$/, "") + "toString()";
+        rustString = value + ".to_string()";
         break;
       case "number":
         value = parseInt(term);
@@ -77,16 +81,13 @@ const testLanguage = {
 };
 
 const expr = "foo = 5 + 3 + bar".toUpperCase();
-const result = new ExpressionParser(
-  testLanguage as unknown as ExpressionParserOptions
-).expressionToValue(expr);
-
-console.log(result);
 
 function getType(value: string) {
+  const lc = value.toLocaleLowerCase();
+  const isBool = lc == "true" || lc == "false";
   if (/^('|").+\1$/.test(value)) return "string";
   if (isFinite(Number(value))) return "number";
-  if (isBoolean(value)) return "boolean";
+  if (isBool) return "boolean";
   if (typeof value === "string") return "variable";
   throw new Error(`Value type not supported: ${value}`);
 }
@@ -97,3 +98,10 @@ function parsedTerm(
 ) {
   return { rustString, value, type };
 }
+
+export const exprToRust = (expr: string): string => {
+  const parsedExpr = new ExpressionParser(
+    testLanguage as unknown as ExpressionParserOptions
+  ).expressionToValue(expr) as unknown as ParsedExpr;
+  return parsedExpr.rustString;
+};

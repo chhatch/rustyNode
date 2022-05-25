@@ -19,8 +19,8 @@ Let's explore using typescript to compile rust from a json template!
 
 - Only three data types are currently supported, number, string, and boolean.
 - Only if/then rules, else is optional.
-- If condition can be `==` or `!=`.
-- Then and else statements can only perform basic assignment operation, `=`, and the assignment cannot change the datatype.
+- ==, !=, =, +
+- assignment operations cannot change datatype.
 - Single rules or arrays of rules can be processed, e.g.
 
 ```json

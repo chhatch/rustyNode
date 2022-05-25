@@ -9,6 +9,7 @@ struct Data {
     rust: String,
     ruby: i32,
     day_of_week: String,
+    fee: i32,
     price: i32,
 }
 fn main() {
@@ -24,8 +25,16 @@ fn main() {
     } else {
         parsed_data.ruby = 1337
     }
+    if parsed_data.day_of_week == "Wednesday".to_string() {
+        parsed_data.fee = 100
+    } else {
+        parsed_data.fee = 20
+    }
+    if parsed_data.day_of_week == "Friday".to_string() {
+        parsed_data.fee = 1000
+    }
     if parsed_data.day_of_week != "Friday".to_string() {
-        parsed_data.price = 15
+        parsed_data.price = parsed_data.price + parsed_data.fee
     }
     let processed_data_string = serde_json::to_string_pretty(&parsed_data).unwrap();
     println!("{}", processed_data_string);

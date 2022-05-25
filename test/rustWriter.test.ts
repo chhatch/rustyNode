@@ -9,9 +9,24 @@ describe("generateDataStructure", () => {
   it("should generate the data structure", () => {
     const rules = [
       {
-        else: { lhs: "ruby", operator: "=", rhs: "1337" },
-        if: { lhs: "node", operator: "==", rhs: "true" },
-        then: { lhs: "rust", operator: "=", rhs: "'win'" },
+        else: {
+          lhs: "ruby",
+          operator: "=",
+          rhs: "1337",
+          rustString: "ruby = 1337",
+        },
+        if: {
+          lhs: "node",
+          operator: "==",
+          rhs: "true",
+          rustString: "node == true",
+        },
+        then: {
+          lhs: "rust",
+          operator: "=",
+          rhs: "'win'",
+          rustString: "rust = win.to_string()",
+        },
       },
       {
         if: { lhs: "day_of_week", operator: "!=", rhs: "'Friday'" },
@@ -59,9 +74,24 @@ describe("compileRust", () => {
   it("should generate a rust file", () => {
     const rules = [
       {
-        else: { lhs: "ruby", operator: "=", rhs: "1337" },
-        if: { lhs: "node", operator: "==", rhs: "true" },
-        then: { lhs: "rust", operator: "=", rhs: "'win'" },
+        else: {
+          lhs: "ruby",
+          operator: "=",
+          rhs: "1337",
+          rustString: "ruby = 1337",
+        },
+        if: {
+          lhs: "node",
+          operator: "==",
+          rhs: "true",
+          rustString: "node == true",
+        },
+        then: {
+          lhs: "rust",
+          operator: "=",
+          rhs: "'win'",
+          rustString: "rust = win.to_string()",
+        },
       },
       {
         if: { lhs: "day_of_week", operator: "!=", rhs: "'Friday'" },

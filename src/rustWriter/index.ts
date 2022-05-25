@@ -1,4 +1,4 @@
-import { isFinite } from "lodash";
+import { has, isFinite } from "lodash";
 import { DataStructure, ParsedRule } from "../types";
 
 const imports = `extern crate serde_json;
@@ -21,12 +21,12 @@ const readAndParse = `    let mut file = fs::File::open("input.json").unwrap();
 `;
 
 const ifStatement = `if IF_CONDITION {
-        VAR = VALUE
+        THEN
     }
 `;
 
 const elseStatement = `else {
-        VAR = VALUE
+        ELSE
     }
 `;
 
@@ -39,7 +39,7 @@ const fnClose = `}`;
 
 export function compileRust(rules: ParsedRule[]): string {
   const dataStructure = generateDataStructure(rules);
-  let stringParts = [
+  const stringParts = [
     imports,
     buildRustStruct(dataStructure),
     fnOpen,
@@ -47,33 +47,25 @@ export function compileRust(rules: ParsedRule[]): string {
   ];
   console.log(dataStructure);
 
-  for (let rule of rules) {
+  for (const rule of rules) {
     if (!rule.if || !rule.then)
       throw new Error(`Rule must have if and then. Invalid rule: ${rule}`);
     if (rule.if.operator !== "==" && rule.if.operator !== "!=")
       throw new Error(`Invalid operator: ${rule.operator}`);
 
-    const ifCondition = `parsed_data.${rule.if.lhs} ${
-      rule.if.operator
-    } ${rustValueString(rule.if.rhs, rule.if.lhs, dataStructure)}`;
     stringParts.push(
       ifStatement
-        .replace("IF_CONDITION", ifCondition)
-        .replace("VAR", "parsed_data." + rule.then.lhs)
+        .replace("IF_CONDITION", rule.if.rustString)
+        .replace("THEN", rule.then.rustString)
         .replace(
           "VALUE",
 
           rustValueString(rule.then.rhs, rule.then.lhs, dataStructure)
         )
     );
-    if (rule.else)
-      stringParts.push(
-        elseStatement.replace("VAR", "parsed_data." + rule.else.lhs).replace(
-          "VALUE",
-
-          rustValueString(rule.else.rhs, rule.else.lhs, dataStructure)
-        )
-      );
+    if (rule.else) {
+      stringParts.push(elseStatement.replace("ELSE", rule.else.rustString));
+    }
   }
   stringParts.push(processAndWrite, fnClose);
   return stringParts.join("");
@@ -138,9 +130,11 @@ ${Object.entries(dataStructure)
 }
 
 function getType(value: string) {
-  if (/^('|").+\1$/.test(value)) return "string";
-  if (isFinite(Number(value))) return "number";
+  const hasQuotes = /^('|").+\1$/.test(value);
+  if (hasQuotes) return "string";
+  if (isFinite(Number(value)) || /\+/.test(value)) return "number";
   if (isBoolean(value)) return "boolean";
+  if (!hasQuotes) return "number";
   throw new Error(`Value type not supported: ${value}`);
 }
 

@@ -44,6 +44,7 @@ const rustTypes = {
 }
 
 export function buildRustStruct(dataStructure: DataStructure): string {
+  console.log(`data: ${JSON.stringify(dataStructure, null, 2)}`)
   const structString = `#[derive(Deserialize, Debug, Serialize)]
 struct Data {
 ${Object.entries(dataStructure)
@@ -56,10 +57,4 @@ ${Object.entries(dataStructure)
 `
 
   return structString
-}
-
-function isBoolean(value: string): boolean {
-  const norm = value.toLowerCase()
-  if (norm === 'true' || norm === 'false') return true
-  return false
 }

@@ -3,7 +3,13 @@ import ExpressionParser, {
   ExpressionThunk
 } from 'expressionparser/dist/ExpressionParser'
 import { flow } from 'lodash'
-import { DataStructure, NodeFlow, TermNode, UnwrappedThunks } from '../types'
+import {
+  DataStructure,
+  DataTypesEnum,
+  NodeFlow,
+  TermNode,
+  UnwrappedThunks
+} from '../types'
 import { addKeysToDataStructure, addTypeToDataStructure } from './dataStructure'
 import { branchNode, done, termNode, unwrapThunks } from './utilities'
 
@@ -11,23 +17,22 @@ export const dataStructure = {} as DataStructure
 
 const joinWith = ([lhs, operator, rhs]: UnwrappedThunks): NodeFlow => {
   const resultString = `${lhs.rustString} ${operator} ${rhs.rustString}`
-  const node = termNode(resultString, 'rust', resultString)
+  if (lhs.value == 'fee') console.log(lhs, operator, rhs)
+  let type: DataTypesEnum = 'unknown'
+  if (lhs.type != 'unknown') type = lhs.type
+  else if (rhs.type != 'unknown') type = rhs.type
+  const node = termNode(resultString, type, resultString)
   return [node, rhs, operator, lhs]
 }
 const rulesToRust = {
   INFIX_OPS: {
-    '+': function (a: ExpressionThunk, b: ExpressionThunk) {
-      const [lhs, rhs] = unwrapThunks(a, b)
-      if (lhs.type === 'number' && rhs.type === 'number') {
-        // @ts-ignore
-        const sum = lhs.value + rhs.value
-        return termNode(sum, 'number', String(sum))
-      }
-      if (lhs.type === 'variable' || rhs.type === 'variable') {
-        const resultString = `${lhs.rustString} + ${rhs.rustString}`
-        return termNode(resultString, 'rust', resultString)
-      }
-    },
+    '+': flow(
+      unwrapThunks,
+      addTypeToDataStructure(dataStructure, '+'),
+      joinWith,
+      branchNode,
+      done
+    ),
     '=': flow(
       unwrapThunks,
       addTypeToDataStructure(dataStructure, '='),
@@ -82,14 +87,14 @@ const rulesToRust = {
         value = term.toLowerCase() === 'true'
         rustString = term.toLowerCase()
         break
-      case 'variable':
+      case 'unknown':
         value = term
         rustString = `parsed_data.${term}`
         break
       default:
         throw new Error(`Unrecognized term: ${term}`)
     }
-    if (type == 'variable') addKeysToDataStructure(dataStructure, term)
+    if (type == 'unknown') addKeysToDataStructure(dataStructure, term)
     return termNode(value, type, rustString)
   }
 }
@@ -100,14 +105,14 @@ function getType(value: string) {
   if (/^('|").+\1$/.test(value)) return 'string'
   if (isFinite(Number(value))) return 'number'
   if (isBool) return 'boolean'
-  if (typeof value === 'string') return 'variable'
+  if (typeof value === 'string') return 'unknown'
   throw new Error(`Value type not supported: ${value}`)
 }
 
 export const exprToRust = (expr: string): string => {
-  const TermNode = new ExpressionParser(
+  const termNode = new ExpressionParser(
     rulesToRust as unknown as ExpressionParserOptions
   ).expressionToValue(expr) as unknown as TermNode
-  console.log('INFO', JSON.stringify(TermNode, null, 2))
-  return TermNode.rustString
+
+  return termNode.rustString
 }

@@ -6,13 +6,7 @@ export interface ParsedRule {
     rustString: string
   }
 }
-export type DataTypesEnum =
-  | 'number'
-  | 'boolean'
-  | 'string'
-  | 'variable'
-  | 'unknown'
-  | 'rust'
+export type DataTypesEnum = 'number' | 'boolean' | 'string' | 'unknown'
 export interface DataStructure {
   [key: string]: {
     type: DataTypesEnum

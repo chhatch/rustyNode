@@ -11,7 +11,8 @@
     "runRust": "./node_rust/target/debug/main",
     "test": "jest",
     "start": "yarn runNode && yarn formatRust && yarn buildRust && yarn runRust",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --config prettier.config.js 'src/**/*.ts' --write"
   },
   "author": "",
   "license": "ISC",
@@ -22,6 +23,7 @@
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
     "eslint": "^8.16.0",
+    "prettier": "^2.6.2",
     "ts-jest": "^28.0.2",
     "ts-node": "^10.8.0",
     "typescript": "^4.6.4"

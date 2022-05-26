@@ -12,7 +12,8 @@
     "test": "jest",
     "start": "yarn runNode && yarn formatRust && yarn buildRust && yarn runRust",
     "lint": "eslint . --ext .ts",
-    "format": "prettier --config prettier.config.js 'src/**/*.ts' --write"
+    "format": "prettier --config prettier.config.js 'src/**/*.ts' --write",
+    "watch": "tsc --build --watch --preserveWatchOutput"
   },
   "author": "",
   "license": "ISC",

@@ -2,43 +2,53 @@ import ExpressionParser, {
   ExpressionParserOptions,
   ExpressionThunk
 } from 'expressionparser/dist/ExpressionParser'
-import { DataStructure, DataTypesEnum } from '../types'
+import { flow } from 'lodash'
+import { DataStructure, NodeFlow, TermNode, UnwrappedThunks } from '../types'
+import { addKeysToDataStructure, addTypeToDataStructure } from './dataStructure'
+import { branchNode, done, termNode, unwrapThunks } from './utilities'
 
-interface ParsedExpr {
-  value: string | number
-  rustString: string
-  type: DataTypesEnum
-  lhs?: ParsedExpr
-  operator?: string
-  rhs?: ParsedExpr
-}
 export const dataStructure = {} as DataStructure
 
-const joinWith =
-  (operator: string) => (a: ExpressionThunk, b: ExpressionThunk) => {
-    const [aParsed, bParsed] = unwrapThunks(a, b)
-    const resultString = `${aParsed.rustString} ${operator} ${bParsed.rustString}`
-    addTypeToDataStructure(aParsed.value as string, bParsed.type, operator)
-    return parsedTerm(resultString, 'done', resultString)
-  }
-const testLanguage = {
+const joinWith = ([lhs, operator, rhs]: UnwrappedThunks): NodeFlow => {
+  const resultString = `${lhs.rustString} ${operator} ${rhs.rustString}`
+  const node = termNode(resultString, 'rust', resultString)
+  return [node, rhs, operator, lhs]
+}
+const rulesToRust = {
   INFIX_OPS: {
     '+': function (a: ExpressionThunk, b: ExpressionThunk) {
-      const [aParsed, bParsed] = unwrapThunks(a, b)
-      if (aParsed.type === 'number' && bParsed.type === 'number') {
+      const [lhs, rhs] = unwrapThunks(a, b)
+      if (lhs.type === 'number' && rhs.type === 'number') {
         // @ts-ignore
-        const sum = aParsed.value + bParsed.value
-        return parsedTerm(sum, 'number', String(sum))
+        const sum = lhs.value + rhs.value
+        return termNode(sum, 'number', String(sum))
       }
-      if (aParsed.type === 'variable' || bParsed.type === 'variable') {
-        const resultString = `${aParsed.rustString} + ${bParsed.rustString}`
-        return parsedTerm(resultString, 'done', resultString)
+      if (lhs.type === 'variable' || rhs.type === 'variable') {
+        const resultString = `${lhs.rustString} + ${rhs.rustString}`
+        return termNode(resultString, 'rust', resultString)
       }
     },
-    '=': joinWith('='),
-    '==': joinWith('=='),
-    '!=': joinWith('!=')
+    '=': flow(
+      unwrapThunks,
+      addTypeToDataStructure(dataStructure, '='),
+      joinWith,
+      branchNode,
+      done
+    ),
+    '==': flow(
+      unwrapThunks,
+      addTypeToDataStructure(dataStructure, '=='),
+      joinWith,
+      done
+    ),
+    '!=': flow(
+      unwrapThunks,
+      addTypeToDataStructure(dataStructure, '!='),
+      joinWith,
+      done
+    )
   },
+
   PREFIX_OPS: {
     POW: function (expr: ExpressionThunk) {
       // @ts-ignore
@@ -79,8 +89,8 @@ const testLanguage = {
       default:
         throw new Error(`Unrecognized term: ${term}`)
     }
-    if (type == 'variable') addKeysToDataStructure(term)
-    return parsedTerm(value, type, rustString)
+    if (type == 'variable') addKeysToDataStructure(dataStructure, term)
+    return termNode(value, type, rustString)
   }
 }
 
@@ -93,46 +103,11 @@ function getType(value: string) {
   if (typeof value === 'string') return 'variable'
   throw new Error(`Value type not supported: ${value}`)
 }
-function parsedTerm(
-  value: number | string | boolean,
-  type: string,
-  rustString: string
-) {
-  return { rustString, value, type }
-}
 
 export const exprToRust = (expr: string): string => {
-  const parsedExpr = new ExpressionParser(
-    testLanguage as unknown as ExpressionParserOptions
-  ).expressionToValue(expr) as unknown as ParsedExpr
-  return parsedExpr.rustString
-}
-
-function addKeysToDataStructure(term: string): void {
-  if (!dataStructure[term])
-    dataStructure[term] = {
-      type: 'unknown',
-      mutable: false
-    }
-}
-
-function addTypeToDataStructure(
-  term: string,
-  type: DataTypesEnum,
-  operator: string
-): void {
-  const dataTerm = dataStructure[term]
-  if (!dataTerm) throw new Error(`Key not found in data structure: ${term}`)
-  if (dataTerm.type != 'unknown' && dataTerm.type != type)
-    throw new Error(`Property type mutation not supported: ${term}`)
-  if (operator == '=') dataTerm.mutable = true
-  // todo: update this once term history is integrated
-  if (type == 'done') dataTerm.type = 'number'
-  else dataTerm.type = type
-}
-
-function unwrapThunks(a: ExpressionThunk, b: ExpressionThunk) {
-  const aParsed = a() as unknown as ParsedExpr
-  const bParsed = b() as unknown as ParsedExpr
-  return [aParsed, bParsed]
+  const TermNode = new ExpressionParser(
+    rulesToRust as unknown as ExpressionParserOptions
+  ).expressionToValue(expr) as unknown as TermNode
+  console.log('INFO', JSON.stringify(TermNode, null, 2))
+  return TermNode.rustString
 }

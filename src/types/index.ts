@@ -6,18 +6,28 @@ export interface ParsedRule {
     rustString: string
   }
 }
-// done will be moved to a state prop or something
 export type DataTypesEnum =
   | 'number'
   | 'boolean'
   | 'string'
   | 'variable'
   | 'unknown'
-  | 'done'
-
+  | 'rust'
 export interface DataStructure {
   [key: string]: {
     type: DataTypesEnum
     mutable: boolean
   }
 }
+export interface TermNode {
+  value: string | number | boolean
+  rustString: string
+  type: DataTypesEnum
+  lhs?: TermNode
+  operator?: string
+  rhs?: TermNode
+}
+
+export type NodeFlow = [TermNode, TermNode, string, TermNode]
+
+export type UnwrappedThunks = [TermNode, string, TermNode]

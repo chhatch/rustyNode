@@ -2,9 +2,9 @@
   { "if": "node == true", "then": "rust = 'win'", "else": "ruby = 1337" },
   {
     "if": "day_of_week == 'Wednesday'",
-    "then": "fee = 100",
-    "else": "fee = 20"
+    "then": "fee = 2",
+    "else": "fee = 1"
   },
-  { "if": "day_of_week == 'Friday'", "then": "fee = 1000" },
-  { "if": "day_of_week != 'Friday'", "then": "price = price + fee" }
+  { "if": "day_of_week == 'Friday'", "then": "fee = 0" },
+  { "if": "day_of_week != 'Friday'", "then": "price = POW(price, fee)" }
 ]

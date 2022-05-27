@@ -11,17 +11,32 @@ import {
   UnwrappedThunks
 } from '../types'
 import { addKeysToDataStructure, addTypeToDataStructure } from './dataStructure'
-import { branchNode, done, termNode, unwrapThunks } from './utilities'
+import {
+  branchNode,
+  done,
+  stringIsNumber,
+  termNode,
+  unwrapThunks
+} from './utilities'
 
 export const dataStructure = {} as DataStructure
 
 const joinWith = ([lhs, operator, rhs]: UnwrappedThunks): NodeFlow => {
   const resultString = `${lhs.rustString} ${operator} ${rhs.rustString}`
-  if (lhs.value == 'fee') console.log(lhs, operator, rhs)
   let type: DataTypesEnum = 'unknown'
   if (lhs.type != 'unknown') type = lhs.type
   else if (rhs.type != 'unknown') type = rhs.type
   const node = termNode(resultString, type, resultString)
+  return [node, rhs, operator, lhs]
+}
+const exponent = ([lhs, operator, rhs]: UnwrappedThunks): NodeFlow => {
+  const resultString = `operations::pow(${lhs.rustString})`
+  const node = termNode(resultString, 'number', resultString)
+  return [node, rhs, operator, lhs]
+}
+const packArgs = ([lhs, operator, rhs]: UnwrappedThunks): NodeFlow => {
+  const resultString = `${lhs.rustString}, ${rhs.rustString}`
+  const node = termNode(lhs.value, 'number', resultString)
   return [node, rhs, operator, lhs]
 }
 const rulesToRust = {
@@ -51,14 +66,22 @@ const rulesToRust = {
       addTypeToDataStructure(dataStructure, '!='),
       joinWith,
       done
+    ),
+    ',': flow(
+      unwrapThunks,
+      addTypeToDataStructure(dataStructure, ','),
+      packArgs,
+      done
     )
   },
 
   PREFIX_OPS: {
-    POW: function (expr: ExpressionThunk) {
-      // @ts-ignore
-      return Math.pow(expr()[0], expr()[1])
-    }
+    POW: flow(
+      unwrapThunks,
+      addTypeToDataStructure(dataStructure, 'POW'),
+      exponent,
+      done
+    )
   },
   PRECEDENCE: [['SQRT', 'POW'], ['*', '/'], ['+', '-'], [',']],
   GROUP_OPEN: '(',

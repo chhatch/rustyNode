@@ -3,6 +3,6 @@
   "rust": "win",
   "ruby": 5,
   "day_of_week": "Wednesday",
-  "fee": 100,
-  "price": 110
+  "fee": 2,
+  "price": 100
 }

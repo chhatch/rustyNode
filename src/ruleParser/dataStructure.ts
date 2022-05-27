@@ -16,19 +16,14 @@ export function addTypeToDataStructure(
   operator: string
 ) {
   return function ([lhs, rhs]: [TermNode, TermNode]): UnwrappedThunks {
+    // how will we handle the keys for nested operations
     const term = lhs.value
     const type = getType(dataStructure, lhs, rhs)
     if (typeof term != 'string')
-      throw new Error(`Cannot add ${term} to data structure`)
+      throw new Error(`Invalid datastructure key: ${term}`)
     const dataTerm = dataStructure[term]
     if (!dataTerm) throw new Error(`Key not found in data structure: ${term}`)
     if (operator == '=') dataTerm.mutable = true
-    // todo: update this once term history is integrated
-    //     if (type == 'rust') {
-    //       console.log(`lhs: ${JSON.stringify(lhs, null, 2)}
-    // rhs: ${JSON.stringify(rhs, null, 2)}
-    // struct: ${JSON.stringify(dataStructure, null, 2)}`)
-    //       dataTerm.type = 'number'}
     checkIfMutation(dataStructure, lhs, rhs, dataTerm.type, type)
     dataTerm.type = type
     return [lhs, operator, rhs]

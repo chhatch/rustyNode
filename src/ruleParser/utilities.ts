@@ -3,7 +3,7 @@ import { DataTypesEnum, NodeFlow, TermNode } from '../types'
 
 export function unwrapThunks(a: ExpressionThunk, b: ExpressionThunk) {
   const lhs = a() as unknown as TermNode
-  const rhs = b() as unknown as TermNode
+  const rhs = b ? (b() as unknown as TermNode) : termNode('test', 'unknown', '')
   return [lhs, rhs]
 }
 
@@ -23,3 +23,5 @@ export function termNode(
 ): TermNode {
   return { value, rustString, type }
 }
+
+export const stringIsNumber = (s: string) => isFinite(Number(s))

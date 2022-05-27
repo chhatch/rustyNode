@@ -3,6 +3,9 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::fs;
 use std::io::Read;
+
+mod operations;
+
 `
 
 export const fnOpen = `fn main() {

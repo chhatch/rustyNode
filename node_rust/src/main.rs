@@ -3,14 +3,17 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::fs;
 use std::io::Read;
+
+mod operations;
+
 #[derive(Deserialize, Debug, Serialize)]
 struct Data {
-    node: bool,
-    rust: String,
-    ruby: i32,
-    day_of_week: String,
-    fee: i32,
-    price: i32,
+node: bool,
+rust: String,
+ruby: i32,
+day_of_week: String,
+fee: i32,
+price: i32,
 }
 fn main() {
     let mut file = fs::File::open("input.json").unwrap();
@@ -20,23 +23,25 @@ fn main() {
 
     let mut parsed_data: Data =
         serde_json::from_str(&data_string).expect("JSON was not well-formatted");
-    if parsed_data.node == true {
+if parsed_data.node == true {
         parsed_data.rust = "win".to_string()
-    } else {
+    }
+else {
         parsed_data.ruby = 1337
     }
-    if parsed_data.day_of_week == "Wednesday".to_string() {
-        parsed_data.fee = 100
-    } else {
-        parsed_data.fee = 20
+if parsed_data.day_of_week == "Wednesday".to_string() {
+        parsed_data.fee = 2
     }
-    if parsed_data.day_of_week == "Friday".to_string() {
-        parsed_data.fee = 1000
+else {
+        parsed_data.fee = 1
     }
-    if parsed_data.day_of_week != "Friday".to_string() {
-        parsed_data.price = parsed_data.price + parsed_data.fee
+if parsed_data.day_of_week == "Friday".to_string() {
+        parsed_data.fee = 0
     }
-    let processed_data_string = serde_json::to_string_pretty(&parsed_data).unwrap();
+if parsed_data.day_of_week != "Friday".to_string() {
+        parsed_data.price = operations::pow(parsed_data.price, parsed_data.fee)
+    }
+let processed_data_string = serde_json::to_string_pretty(&parsed_data).unwrap();
     println!("{}", processed_data_string);
     fs::write("output.json", processed_data_string).expect("Unable to write file");
 }

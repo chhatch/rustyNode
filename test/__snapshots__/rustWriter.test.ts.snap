@@ -6,11 +6,14 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::fs;
 use std::io::Read;
+
+mod operations;
+
 #[derive(Deserialize, Debug, Serialize)]
 struct Data {
-ruby: i32,
 node: bool,
 rust: String,
+ruby: i32,
 day_of_week: String,
 price: i32,
 }

@@ -31,7 +31,7 @@ fn main() {
     if parsed_data.day_of_week == "Wednesday".to_string() {
         parsed_data.fee = 2
     } else {
-        parsed_data.fee = false
+        parsed_data.fee = 1
     }
     if parsed_data.day_of_week == "Friday".to_string() {
         parsed_data.fee = 0

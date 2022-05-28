@@ -1,4 +1,5 @@
-import { DataStructure, TermNode, UnwrappedThunks } from '../types'
+import { DataStructure, DataTypesEnum, TermNode } from '../types'
+import { PRIMITIVE } from './utilities'
 
 export function addKeysToDataStructure(
   dataStructure: DataStructure,
@@ -11,18 +12,36 @@ export function addKeysToDataStructure(
     }
 }
 
-export function addTypeToDataStructure(
+export function updateDataStructure(
   dataStructure: DataStructure,
-  operator: string
-) {
-  return function ([lhs, rhs]: [TermNode, TermNode]): UnwrappedThunks {
+  key: string,
+  type: DataTypesEnum
+): void {
+  const dataEntry = dataStructure[key != PRIMITIVE ? key : '']
+  // temp to avoid key not found in data structure
+  // if (!dataEntry) throw new Error(`Key "${key}" not found in data structure`)
+  if (dataEntry && dataEntry.type !== 'unknown') {
+    throw new Error(
+      `Property mutation not supported: Key "${key}" Existing type "${dataEntry.type}" New type "${type}"`
+    )
+    dataEntry.type = type
+  }
+}
+
+export function addTypeToDataStructure(dataStructure: DataStructure) {
+  return function ([lhs, operator, rhs]: [TermNode, string, TermNode]): [
+    TermNode,
+    string,
+    TermNode
+  ] {
     // how will we handle the keys for nested operations
-    const term = lhs.value
+    const key = lhs.key
     const type = getType(dataStructure, lhs, rhs)
-    if (typeof term != 'string')
-      throw new Error(`Invalid datastructure key: ${term}`)
-    const dataTerm = dataStructure[term]
-    if (!dataTerm) throw new Error(`Key not found in data structure: ${term}`)
+    if (typeof key != 'string')
+      throw new Error(`Invalid datastructure key: ${key}`)
+    const dataTerm = dataStructure[key]
+    // temp to avoid key not found in data structure
+    if (!dataTerm) return [lhs, operator, rhs] //throw new Error(`Key not found in data structure: ${term}`)
     if (operator == '=') dataTerm.mutable = true
     checkIfMutation(dataStructure, lhs, rhs, dataTerm.type, type)
     dataTerm.type = type
@@ -30,8 +49,8 @@ export function addTypeToDataStructure(
   }
 }
 function getType(dataStructure: DataStructure, lhs: TermNode, rhs: TermNode) {
-  const lhsType = dataStructure[String(lhs.value)]?.type
-  const rhsType = dataStructure[String(rhs.value)]?.type
+  const lhsType = dataStructure[String(lhs.key)]?.type
+  const rhsType = dataStructure[String(rhs.key)]?.type
   // this is where we can walk to nodes to get types
   const lhsExistingType = lhs.type
   const rhsExistingType = rhs.type

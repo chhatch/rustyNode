@@ -1,6 +1,5 @@
 import ExpressionParser, {
-  ExpressionParserOptions,
-  ExpressionThunk
+  ExpressionParserOptions
 } from 'expressionparser/dist/ExpressionParser'
 import { flow } from 'lodash'
 import {
@@ -10,67 +9,77 @@ import {
   TermNode,
   UnwrappedThunks
 } from '../types'
-import { addKeysToDataStructure, addTypeToDataStructure } from './dataStructure'
+import {
+  addKeysToDataStructure,
+  addTypeToDataStructure,
+  updateDataStructure
+} from './dataStructure'
+import { operatorDict } from './operatorDict'
 import {
   branchNode,
   done,
-  stringIsNumber,
+  PRIMITIVE,
   termNode,
   unwrapThunks
 } from './utilities'
 
 export const dataStructure = {} as DataStructure
 
-const joinWith = ([lhs, operator, rhs]: UnwrappedThunks): NodeFlow => {
+const joinWith = ([lhs, operator, rhs]: [
+  TermNode,
+  string,
+  TermNode
+]): NodeFlow => {
   const resultString = `${lhs.rustString} ${operator} ${rhs.rustString}`
   let type: DataTypesEnum = 'unknown'
   if (lhs.type != 'unknown') type = lhs.type
   else if (rhs.type != 'unknown') type = rhs.type
-  const node = termNode(resultString, type, resultString)
+  const node = termNode(lhs.key, type, resultString)
   return [node, rhs, operator, lhs]
 }
-const exponent = ([lhs, operator, rhs]: UnwrappedThunks): NodeFlow => {
+const exponent = ([lhs, rhs]: UnwrappedThunks): NodeFlow => {
   const resultString = `operations::pow(${lhs.rustString})`
   const node = termNode(resultString, 'number', resultString)
-  return [node, rhs, operator, lhs]
+  return [node, rhs, 'POW', lhs]
 }
-const packArgs = ([lhs, operator, rhs]: UnwrappedThunks): NodeFlow => {
-  const resultString = `${lhs.rustString}, ${rhs.rustString}`
-  const node = termNode(lhs.value, 'number', resultString)
-  return [node, rhs, operator, lhs]
-}
+
 const rulesToRust = {
   INFIX_OPS: {
     '+': flow(
       unwrapThunks,
-      addTypeToDataStructure(dataStructure, '+'),
+      argTypes('+'),
       joinWith,
+      addTypeToDataStructure(dataStructure),
       branchNode,
       done
     ),
     '=': flow(
       unwrapThunks,
-      addTypeToDataStructure(dataStructure, '='),
+      argTypes('='),
       joinWith,
+      addTypeToDataStructure(dataStructure),
       branchNode,
       done
     ),
     '==': flow(
       unwrapThunks,
-      addTypeToDataStructure(dataStructure, '=='),
+      argTypes('=='),
       joinWith,
+      addTypeToDataStructure(dataStructure),
       done
     ),
     '!=': flow(
       unwrapThunks,
-      addTypeToDataStructure(dataStructure, '!='),
+      argTypes('!='),
       joinWith,
+      addTypeToDataStructure(dataStructure),
       done
     ),
     ',': flow(
       unwrapThunks,
-      addTypeToDataStructure(dataStructure, ','),
-      packArgs,
+      argTypes(','),
+      joinWith,
+      addTypeToDataStructure(dataStructure),
       done
     )
   },
@@ -78,7 +87,8 @@ const rulesToRust = {
   PREFIX_OPS: {
     POW: flow(
       unwrapThunks,
-      addTypeToDataStructure(dataStructure, 'POW'),
+      argTypes('POW'),
+      addTypeToDataStructure(dataStructure),
       exponent,
       done
     )
@@ -95,30 +105,40 @@ const rulesToRust = {
 
   termDelegate: function (term: string) {
     let rustString
-    let value
+    let key
     const type = getType(term)
     switch (type) {
       case 'string':
-        value = term.replace(/^'/, '"').replace(/'$/, '"')
-        rustString = value + '.to_string()'
+        key = PRIMITIVE
+        rustString = term.replace(/^'|'$/g, '"') + '.to_string()'
         break
       case 'number':
-        value = parseInt(term)
+        key = PRIMITIVE
         rustString = term
         break
       case 'boolean':
-        value = term.toLowerCase() === 'true'
+        key = PRIMITIVE
         rustString = term.toLowerCase()
         break
       case 'unknown':
-        value = term
+        key = term
         rustString = `parsed_data.${term}`
         break
       default:
         throw new Error(`Unrecognized term: ${term}`)
     }
     if (type == 'unknown') addKeysToDataStructure(dataStructure, term)
-    return termNode(value, type, rustString)
+    return termNode(key, type, rustString)
+  }
+}
+
+function argTypes(operator: keyof typeof operatorDict) {
+  return function ([lhs, rhs]: UnwrappedThunks): [TermNode, string, TermNode] {
+    const operatorType = operatorDict[operator].resultType
+    if (operatorType !== 'unknown' && lhs.type == 'unknown') {
+      updateDataStructure(dataStructure, lhs.key, operatorType)
+    }
+    return [lhs, operator, rhs]
   }
 }
 

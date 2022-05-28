@@ -1,6 +1,8 @@
 import { ExpressionThunk } from 'expressionparser/dist/ExpressionParser'
 import { DataTypesEnum, NodeFlow, TermNode } from '../types'
 
+export const PRIMITIVE = '__primitive__'
+
 export function unwrapThunks(a: ExpressionThunk, b: ExpressionThunk) {
   const lhs = a() as unknown as TermNode
   const rhs = b ? (b() as unknown as TermNode) : termNode('test', 'unknown', '')
@@ -17,11 +19,11 @@ export function done([node]: TermNode[]): TermNode {
 }
 
 export function termNode(
-  value: number | string | boolean,
+  key: string,
   type: DataTypesEnum,
   rustString: string
 ): TermNode {
-  return { value, rustString, type }
+  return { key, rustString, type }
 }
 
 export const stringIsNumber = (s: string) => isFinite(Number(s))

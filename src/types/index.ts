@@ -14,7 +14,7 @@ export interface DataStructure {
   }
 }
 export interface TermNode {
-  value: string | number | boolean
+  key: string
   rustString: string
   type: DataTypesEnum
   lhs?: TermNode
@@ -24,4 +24,4 @@ export interface TermNode {
 
 export type NodeFlow = [TermNode, TermNode, string, TermNode]
 
-export type UnwrappedThunks = [TermNode, string, TermNode]
+export type UnwrappedThunks = [TermNode, TermNode]

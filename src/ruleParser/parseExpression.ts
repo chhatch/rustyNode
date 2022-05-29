@@ -9,11 +9,7 @@ import {
   TermNode,
   UnwrappedThunks
 } from '../types'
-import {
-  addKeysToDataStructure,
-  addTypeToDataStructure,
-  updateDataStructure
-} from './dataStructure'
+import { addKeysToDataStructure, addTypeToDataStructure } from './dataStructure'
 import { operatorDict } from './operatorDict'
 import {
   branchNode,
@@ -47,48 +43,28 @@ const rulesToRust = {
   INFIX_OPS: {
     '+': flow(
       unwrapThunks,
-      argTypes('+'),
+      addTypeToDataStructure('+'),
       joinWith,
-      addTypeToDataStructure(dataStructure),
       branchNode,
       done
     ),
     '=': flow(
       unwrapThunks,
-      argTypes('='),
+      addTypeToDataStructure('='),
       joinWith,
-      addTypeToDataStructure(dataStructure),
       branchNode,
       done
     ),
-    '==': flow(
-      unwrapThunks,
-      argTypes('=='),
-      joinWith,
-      addTypeToDataStructure(dataStructure),
-      done
-    ),
-    '!=': flow(
-      unwrapThunks,
-      argTypes('!='),
-      joinWith,
-      addTypeToDataStructure(dataStructure),
-      done
-    ),
-    ',': flow(
-      unwrapThunks,
-      argTypes(','),
-      joinWith,
-      addTypeToDataStructure(dataStructure),
-      done
-    )
+    '==': flow(unwrapThunks, addTypeToDataStructure('=='), joinWith, done),
+    '!=': flow(unwrapThunks, addTypeToDataStructure('!='), joinWith, done),
+    ',': flow(unwrapThunks, addTypeToDataStructure(','), joinWith, done)
   },
 
   PREFIX_OPS: {
     POW: flow(
       unwrapThunks,
-      argTypes('POW'),
-      addTypeToDataStructure(dataStructure),
+
+      addTypeToDataStructure('POW'),
       exponent,
       done
     )
@@ -129,16 +105,6 @@ const rulesToRust = {
     }
     if (type == 'unknown') addKeysToDataStructure(dataStructure, term)
     return termNode(key, type, rustString)
-  }
-}
-
-function argTypes(operator: keyof typeof operatorDict) {
-  return function ([lhs, rhs]: UnwrappedThunks): [TermNode, string, TermNode] {
-    const operatorType = operatorDict[operator].resultType
-    if (operatorType !== 'unknown' && lhs.type == 'unknown') {
-      updateDataStructure(dataStructure, lhs.key, operatorType)
-    }
-    return [lhs, operator, rhs]
   }
 }
 

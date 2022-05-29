@@ -13,15 +13,13 @@ export interface DataStructure {
     mutable: boolean
   }
 }
+
 export interface TermNode {
   key: string
   rustString: string
   type: DataTypesEnum
-  lhs?: TermNode
-  operator?: string
-  rhs?: TermNode
+  operator: string | null
+  operands: TermNode[]
 }
-
-export type NodeFlow = [TermNode, TermNode, string, TermNode]
 
 export type UnwrappedThunks = [TermNode, TermNode]

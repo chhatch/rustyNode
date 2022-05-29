@@ -1,7 +1,7 @@
 import { DataStructure, DataTypesEnum, TermNode } from '../types'
 import { operatorDict } from './operatorDict'
 import { dataStructure } from './parseExpression'
-import { PRIMITIVE } from './utilities'
+import { PRIMITIVE, stringifyOperands } from './utilities'
 
 export function addKeysToDataStructure(
   dataStructure: DataStructure,
@@ -27,48 +27,38 @@ export function updateDataStructure(key: string, type: DataTypesEnum): void {
 }
 
 export function addTypeToDataStructure(operator: string) {
-  return function ([lhs, rhs]: [TermNode, TermNode]): [
-    TermNode,
-    string,
-    TermNode
-  ] {
-    const terms = [lhs, rhs]
-    const type = getType(lhs, rhs)
+  return function (operands: TermNode[]): [TermNode[], string] {
+    const type = getType(operands)
     const operatorType = operatorDict[operator].resultType
     if (type != 'unknown' && operatorType != 'unknown' && operatorType != type)
-      throw typeMismatch(lhs, rhs, operator)
+      throw typeMismatch(operands, operator)
 
-    for (const term of terms) {
-      const key = term.key
+    for (const operand of operands) {
+      const key = operand.key
       if (key == PRIMITIVE) continue
-      if (type !== 'unknown' && term.type == 'unknown') {
+      if (type !== 'unknown' && operand.type == 'unknown') {
         updateDataStructure(key, type)
         if (typeof key != 'string')
           throw new Error(`Invalid datastructure key: ${key}`)
         const dataTerm = dataStructure[key]
         // temp to avoid key not found in data structure
-        if (!dataTerm) return [lhs, operator, rhs] //throw new Error(`Key not found in data structure: ${term}`)
+        if (!dataTerm) return [operands, operator] //throw new Error(`Key not found in data structure: ${term}`)
         if (operator == '=') dataTerm.mutable = true
-        checkIfMutation(lhs, rhs, dataTerm.type, type)
+        checkIfMutation(operands, dataTerm.type, type)
         dataTerm.type = type
       }
     }
-    return [lhs, operator, rhs]
+    return [operands, operator]
   }
 }
-function getType(lhs: TermNode, rhs: TermNode) {
-  const lhsType = dataStructure[String(lhs.key)]?.type
-  const rhsType = dataStructure[String(rhs.key)]?.type
+function getType(operands: TermNode[]) {
   // this is where we can walk to nodes to get types
-  const lhsExistingType = lhs.type
-  const rhsExistingType = rhs.type
+  const types = operands.map((term) => dataStructure[String(term.key)]?.type)
+  const existingTypes = operands.map((term) => term.type)
 
-  const filteredTypes = [
-    lhsType,
-    rhsType,
-    lhsExistingType,
-    rhsExistingType
-  ].filter((x) => x && x != 'unknown')
+  const filteredTypes = [...types, ...existingTypes].filter(
+    (x) => x && x != 'unknown'
+  )
 
   const reduceTypes = (
     returnType: DataTypesEnum,
@@ -77,7 +67,7 @@ function getType(lhs: TermNode, rhs: TermNode) {
     if (currentType == 'unknown') {
       return returnType
     } else if (returnType != 'unknown' && returnType != currentType) {
-      throw typeMismatch(lhs, rhs)
+      throw typeMismatch(operands)
     }
     return currentType
   }
@@ -86,25 +76,20 @@ function getType(lhs: TermNode, rhs: TermNode) {
   return type
 }
 function checkIfMutation(
-  lhs: TermNode,
-  rhs: TermNode,
+  operands: TermNode[],
   existingType: string,
   newType: string
 ) {
   if (existingType != 'unknown' && existingType != newType)
-    throw new Error(`Property type mutation not supported: lhs: ${JSON.stringify(
-      lhs,
-      null,
-      2
+    throw new Error(`Property type mutation not supported: lhs: ${stringifyOperands(
+      operands
     )}
-rhs: ${JSON.stringify(rhs, null, 2)}
 existing type: ${existingType}
 new type: ${newType}
 data structure: ${JSON.stringify(dataStructure, null, 2)}`)
 }
 
-function typeMismatch(lhs: TermNode, rhs: TermNode, operator?: string): Error {
-  return new Error(`Type mismatch lhs: ${JSON.stringify(lhs, null, 2)}
-rhs: ${JSON.stringify(rhs, null, 2)}}
+function typeMismatch(operands: TermNode[], operator?: string): Error {
+  return new Error(`Type mismatch ${stringifyOperands(operands)}
 ${operator ? `operator: ${JSON.stringify(operator, null, 2)}` : ''}`)
 }

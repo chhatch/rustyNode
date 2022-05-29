@@ -2,62 +2,37 @@ import ExpressionParser, {
   ExpressionParserOptions
 } from 'expressionparser/dist/ExpressionParser'
 import { flow } from 'lodash'
-import {
-  DataStructure,
-  DataTypesEnum,
-  NodeFlow,
-  TermNode,
-  UnwrappedThunks
-} from '../types'
+import { DataStructure, DataTypesEnum, TermNode } from '../types'
 import { addKeysToDataStructure, addTypeToDataStructure } from './dataStructure'
-import { operatorDict } from './operatorDict'
-import {
-  branchNode,
-  done,
-  PRIMITIVE,
-  termNode,
-  unwrapThunks
-} from './utilities'
+import { PRIMITIVE, termNode, unwrapThunks } from './utilities'
 
 export const dataStructure = {} as DataStructure
 
-const joinWith = ([lhs, operator, rhs]: [
-  TermNode,
-  string,
-  TermNode
-]): NodeFlow => {
+const joinWith = ([[lhs, rhs], operator]: [TermNode[], string]): TermNode => {
+  // need to check the operator here like in joinFunc
   const resultString = `${lhs.rustString} ${operator} ${rhs.rustString}`
   let type: DataTypesEnum = 'unknown'
   if (lhs.type != 'unknown') type = lhs.type
   else if (rhs.type != 'unknown') type = rhs.type
-  const node = termNode(lhs.key, type, resultString)
-  return [node, rhs, operator, lhs]
+  // updates here when move to keys array
+  const node = termNode(lhs.key, type, resultString, operator, [lhs, rhs])
+  return node
 }
-const exponent = ([lhs, rhs]: UnwrappedThunks): NodeFlow => {
+const joinFunc = ([[lhs, rhs], prefixOp]: [TermNode[], string]): TermNode => {
+  if (prefixOp != 'POW')
+    throw new Error(`Prefix Op: ${prefixOp} not recognized.`)
   const resultString = `operations::pow(${lhs.rustString})`
-  const node = termNode(resultString, 'number', resultString)
-  return [node, rhs, 'POW', lhs]
+  const node = termNode(resultString, 'number', resultString, 'POW', [lhs, rhs])
+  return node
 }
 
 const rulesToRust = {
   INFIX_OPS: {
-    '+': flow(
-      unwrapThunks,
-      addTypeToDataStructure('+'),
-      joinWith,
-      branchNode,
-      done
-    ),
-    '=': flow(
-      unwrapThunks,
-      addTypeToDataStructure('='),
-      joinWith,
-      branchNode,
-      done
-    ),
-    '==': flow(unwrapThunks, addTypeToDataStructure('=='), joinWith, done),
-    '!=': flow(unwrapThunks, addTypeToDataStructure('!='), joinWith, done),
-    ',': flow(unwrapThunks, addTypeToDataStructure(','), joinWith, done)
+    '+': flow(unwrapThunks, addTypeToDataStructure('+'), joinWith),
+    '=': flow(unwrapThunks, addTypeToDataStructure('='), joinWith),
+    '==': flow(unwrapThunks, addTypeToDataStructure('=='), joinWith),
+    '!=': flow(unwrapThunks, addTypeToDataStructure('!='), joinWith),
+    ',': flow(unwrapThunks, addTypeToDataStructure(','), joinWith)
   },
 
   PREFIX_OPS: {
@@ -65,8 +40,7 @@ const rulesToRust = {
       unwrapThunks,
 
       addTypeToDataStructure('POW'),
-      exponent,
-      done
+      joinFunc
     )
   },
   PRECEDENCE: [['SQRT', 'POW'], ['*', '/'], ['+', '-'], [',']],

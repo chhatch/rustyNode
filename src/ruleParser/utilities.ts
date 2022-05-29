@@ -1,29 +1,26 @@
 import { ExpressionThunk } from 'expressionparser/dist/ExpressionParser'
-import { DataTypesEnum, NodeFlow, TermNode } from '../types'
+import { DataTypesEnum, TermNode } from '../types'
 
 export const PRIMITIVE = '__primitive__'
 
 export function unwrapThunks(a: ExpressionThunk, b: ExpressionThunk) {
   const lhs = a() as unknown as TermNode
-  const rhs = b ? (b() as unknown as TermNode) : termNode('test', 'unknown', '')
-  return [lhs, rhs]
-}
-
-export function branchNode([node, rhs, operator, lhs]: NodeFlow): NodeFlow {
-  const branchedNode = { ...node, rhs, operator, lhs }
-  return [branchedNode, rhs, operator, lhs]
-}
-
-export function done([node]: TermNode[]): TermNode {
-  return node
+  // I think there should always be "a"
+  const rhs = b ? (b() as unknown as TermNode) : false
+  return [lhs, rhs].filter((x) => !!x)
 }
 
 export function termNode(
   key: string,
   type: DataTypesEnum,
-  rustString: string
+  rustString: string,
+  operator = '',
+  operands: TermNode[] = []
 ): TermNode {
-  return { key, rustString, type }
+  return { key, rustString, type, operator, operands }
 }
 
 export const stringIsNumber = (s: string) => isFinite(Number(s))
+
+export const stringifyOperands = (operands: TermNode[]) =>
+  operands.map((op) => JSON.stringify(op, null, 2)).join('\n')

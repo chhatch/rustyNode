@@ -103,11 +103,7 @@ new type: ${newType}
 data structure: ${JSON.stringify(dataStructure, null, 2)}`)
 }
 
-export function typeMismatch(
-  lhs: TermNode,
-  rhs: TermNode,
-  operator?: string
-): Error {
+function typeMismatch(lhs: TermNode, rhs: TermNode, operator?: string): Error {
   return new Error(`Type mismatch lhs: ${JSON.stringify(lhs, null, 2)}
 rhs: ${JSON.stringify(rhs, null, 2)}}
 ${operator ? `operator: ${JSON.stringify(operator, null, 2)}` : ''}`)

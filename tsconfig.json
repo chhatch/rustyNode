@@ -9,5 +9,6 @@
     "noImplicitAny": true,
     "skipLibCheck": true,
     "sourceMap": true
-  }
+  },
+  "exclude": ["test"]
 }

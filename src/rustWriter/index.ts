@@ -10,31 +10,36 @@ import {
   readAndParse
 } from './rustTemplates'
 
-export function compileRust(rules: ParsedRule[]): string {
-  const stringParts = [
-    imports,
-    buildRustStruct(dataStructure),
-    fnOpen,
-    readAndParse
-  ]
+export function compileRust(inputPath: string, outputPath: string) {
+  return (rules: ParsedRule[]): string => {
+    const stringParts = [
+      imports,
+      buildRustStruct(dataStructure),
+      fnOpen,
+      readAndParse.replace('INPUT_PATH', inputPath)
+    ]
 
-  for (const rule of rules) {
-    if (!rule.if || !rule.then)
-      throw new Error(`Rule must have if and then. Invalid rule: ${rule}`)
-    if (rule.if.operator !== '==' && rule.if.operator !== '!=')
-      throw new Error(`Invalid operator: ${rule.operator}`)
+    for (const rule of rules) {
+      if (!rule.if || !rule.then)
+        throw new Error(`Rule must have if and then. Invalid rule: ${rule}`)
+      if (rule.if.operator !== '==' && rule.if.operator !== '!=')
+        throw new Error(`Invalid operator: ${rule.operator}`)
 
-    stringParts.push(
-      ifStatement
-        .replace('IF_CONDITION', rule.if.rustString)
-        .replace('THEN', rule.then.rustString)
-    )
-    if (rule.else) {
-      stringParts.push(elseStatement.replace('ELSE', rule.else.rustString))
+      stringParts.push(
+        ifStatement
+          .replace('IF_CONDITION', rule.if.rustString)
+          .replace('THEN', rule.then.rustString)
+      )
+      if (rule.else) {
+        stringParts.push(elseStatement.replace('ELSE', rule.else.rustString))
+      }
     }
+    stringParts.push(
+      processAndWrite.replace('OUTPUT_PATH', outputPath),
+      fnClose
+    )
+    return stringParts.join('')
   }
-  stringParts.push(processAndWrite, fnClose)
-  return stringParts.join('')
 }
 
 const rustTypes = {

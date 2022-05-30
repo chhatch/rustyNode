@@ -3,12 +3,17 @@ import { flow, partial, partialRight } from 'lodash'
 import { compileRust } from './rustWriter/index'
 import { parseRules } from './ruleParser/index'
 
-export const rulesToRust = flow([
-  partialRight(readFileSync, 'utf8'),
-  JSON.parse,
-  parseRules,
-  compileRust,
-  partial(writeFileSync, 'node_rust/src/main.rs')
-])
+const [rulesPath, inputPath, outputPath] = process.argv.slice(2)
+export const rulesToRust = (
+  inputPath = 'input.json',
+  outputPath = 'outputPath.json'
+) =>
+  flow([
+    partialRight(readFileSync, 'utf8'),
+    JSON.parse,
+    parseRules,
+    compileRust(inputPath, outputPath),
+    partial(writeFileSync, 'node_rust/src/main.rs')
+  ])
 
-rulesToRust('rules.json')
+rulesToRust(inputPath, outputPath)(rulesPath || 'rules.json')

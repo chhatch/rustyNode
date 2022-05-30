@@ -11,7 +11,7 @@ mod operations;
 export const fnOpen = `fn main() {
 `
 
-export const readAndParse = `    let mut file = fs::File::open("input.json").unwrap();
+export const readAndParse = `    let mut file = fs::File::open("INPUT_PATH").unwrap();
     let mut data_string = String::new();
 
     file.read_to_string(&mut data_string).unwrap();
@@ -32,7 +32,7 @@ export const elseStatement = `else {
 
 export const processAndWrite = `let processed_data_string = serde_json::to_string_pretty(&parsed_data).unwrap();
     println!("{}", processed_data_string);
-    fs::write("output.json", processed_data_string).expect("Unable to write file");
+    fs::write("OUTPUT_PATH", processed_data_string).expect("Unable to write file");
 `
 
 export const fnClose = `}`

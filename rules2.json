@@ -1,0 +1,7 @@
+[
+  {
+    "if": "node.fp == true",
+    "then": "rust.status = 'win'",
+    "else": "ruby.magicNumber = 1337"
+  }
+]

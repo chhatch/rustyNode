@@ -1,0 +1,11 @@
+{
+  "node": {
+    "fp": true
+  },
+  "rust": {
+    "status": "win"
+  },
+  "ruby": {
+    "magicNumber": 5
+  }
+}

@@ -55,21 +55,19 @@ const rulesToRust = {
 
   termDelegate: function (term: string) {
     let rustString
-    let key
+    let key = PRIMITIVE
     const type = getType(term)
     switch (type) {
-      case 'string':
-        key = PRIMITIVE
-        rustString = term.replace(/^'|'$/g, '"') + '.to_string()'
-        break
-      case 'number':
-        key = PRIMITIVE
-        rustString = term
-        break
       case 'boolean':
-        key = PRIMITIVE
         rustString = term.toLowerCase()
         break
+      case 'number':
+        rustString = term
+        break
+      case 'string':
+        rustString = term.replace(/^'|'$/g, '"') + '.to_string()'
+        break
+      // the catches dotted objects too
       case 'unknown':
         key = term
         rustString = `parsed_data.${term}`
@@ -77,7 +75,7 @@ const rulesToRust = {
       default:
         throw new Error(`Unrecognized term: ${term}`)
     }
-    if (type == 'unknown') addKeysToDataStructure(dataStructure, term)
+    if (type == 'unknown') addKeysToDataStructure(dataStructure, key)
     return termNode(key, type, rustString)
   }
 }

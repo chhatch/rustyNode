@@ -8,12 +8,16 @@ mod operations;
 
 #[derive(Deserialize, Debug, Serialize)]
 struct Data {
-    node: bool,
+    node: NODE,
     rust: String,
     ruby: i32,
     day_of_week: String,
     fee: i32,
     price: i32,
+}
+#[derive(Deserialize, Debug, Serialize)]
+struct NODE {
+    fp: bool,
 }
 fn main() {
     let mut file = fs::File::open("input.json").unwrap();
@@ -23,7 +27,7 @@ fn main() {
 
     let mut parsed_data: Data =
         serde_json::from_str(&data_string).expect("JSON was not well-formatted");
-    if parsed_data.node == true {
+    if parsed_data.node.fp == true {
         parsed_data.rust = "win".to_string()
     } else {
         parsed_data.ruby = 1337

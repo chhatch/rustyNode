@@ -7,9 +7,7 @@ describe('buildRustStruct', () => {
     const dataStructure = {
       node: { type: 'boolean', mutable: false },
       rust: { type: 'string', mutable: true },
-      ruby: { type: 'number', mutable: true },
-      day_of_week: { type: 'string', mutable: false },
-      price: { type: 'number', mutable: true }
+      ruby: { type: 'number', mutable: true }
     } as DataStructure
 
     expect(buildRustStruct(dataStructure)).toMatchInlineSnapshot(`
@@ -18,8 +16,23 @@ struct Data {
 node: bool,
 rust: String,
 ruby: i32,
-day_of_week: String,
-price: i32,
+}
+"
+`)
+  })
+  it('should build nested structs', () => {
+    const dataStructure = {
+      node: { fp: { type: 'boolean', mutable: false } }
+    } as DataStructure
+
+    expect(buildRustStruct(dataStructure)).toMatchInlineSnapshot(`
+"#[derive(Deserialize, Debug, Serialize)]
+struct Data {
+node: NODE,
+}
+#[derive(Deserialize, Debug, Serialize)]
+struct NODE {
+fp: bool,
 }
 "
 `)

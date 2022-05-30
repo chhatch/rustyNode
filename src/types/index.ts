@@ -8,10 +8,12 @@ export interface ParsedRule {
 }
 export type DataTypesEnum = 'number' | 'boolean' | 'string' | 'unknown'
 export interface DataStructure {
-  [key: string]: {
-    type: DataTypesEnum
-    mutable: boolean
-  }
+  [key: string]:
+    | {
+        type: DataTypesEnum
+        mutable: boolean
+      }
+    | DataStructure
 }
 
 export interface TermNode {

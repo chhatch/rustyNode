@@ -1,5 +1,5 @@
 {
-  "node": true,
+  "node": { "fp": true },
   "rust": "meh",
   "ruby": 5,
   "day_of_week": "Wednesday",

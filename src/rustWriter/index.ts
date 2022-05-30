@@ -43,18 +43,31 @@ const rustTypes = {
   number: 'i32'
 }
 
-export function buildRustStruct(dataStructure: DataStructure): string {
-  console.log(`data: ${JSON.stringify(dataStructure, null, 2)}`)
-  const structString = `#[derive(Deserialize, Debug, Serialize)]
-struct Data {
+export function buildRustStruct(
+  dataStructure: DataStructure,
+  structName = 'Data'
+): string {
+  const nestedStructs: string[] = []
+  const mainStruct = `#[derive(Deserialize, Debug, Serialize)]
+struct ${structName} {
 ${Object.entries(dataStructure)
-  .map(
-    // @ts-ignore
-    ([key, { type }]) => `${key}: ${rustTypes[type]},
+  .map(([key, prop]) => {
+    let type
+    if (typeof prop.type === 'string') {
+      if (prop.type !== 'unknown') type = rustTypes[prop.type]
+      else throw new Error(`Unknown type at key: ${key}`)
+    } else {
+      type = key.toUpperCase()
+      nestedStructs.push(
+        buildRustStruct(dataStructure[key] as DataStructure, type)
+      )
+    }
+
+    return `${key}: ${type},
 `
-  )
+  })
   .join('')}}
 `
 
-  return structString
+  return mainStruct.concat(...nestedStructs)
 }

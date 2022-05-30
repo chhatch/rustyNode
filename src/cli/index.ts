@@ -30,5 +30,6 @@ export function processArgs() {
         describe: 'Path to write ouput to'
       }
     })
+    .alias('h', 'help')
     .parseSync()
 }

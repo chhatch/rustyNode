@@ -15,7 +15,7 @@ export function compileRust(inputPath: string, outputPath: string) {
   return (rules: ParsedRule[]): string => {
     const stringParts = [
       imports,
-      buildRustStruct(dataStructure),
+      buildRustStruct({ dataStructure }),
       fnOpen,
       readAndParse.replace('INPUT_PATH', inputPath)
     ]
@@ -49,14 +49,54 @@ const rustTypes = {
   number: 'i32',
   array: 'Vec<string>'
 }
+interface BuildArgs {
+  dataStructure: DataStructure
+  structName?: string
+  arrayFlag?: boolean
+}
 
-export function buildRustStruct(
-  dataStructure: DataStructure,
+export function buildRustStruct({
+  dataStructure,
   structName = 'Data',
   arrayFlag = false
-): string {
+}: BuildArgs): string {
   const nestedStructs: string[] = []
-  const structIteration = ([key, prop]: [
+  // we never want to see this in the rust file
+  let struct = 'ERROR'
+  if (isArray(dataStructure) && isArray(dataStructure[0])) {
+    struct = dataStructure
+      .map(structIteration({ dataStructure, nestedStructs, arrayFlag }))
+      .join('')
+  } else {
+    struct = Object.entries(dataStructure)
+      // @ts-ignore
+      .map(structIteration({ dataStructure, nestedStructs, arrayFlag }))
+      .join('')
+  }
+  let mainStruct
+  if (!arrayFlag) {
+    mainStruct = `#[derive(Deserialize, Debug, Serialize)]
+struct ${structName} {
+${struct}
+}
+`
+  } else {
+    mainStruct = `type ${structName} = ${struct};`
+  }
+  return mainStruct.concat(...nestedStructs)
+}
+
+interface IterationArgs {
+  dataStructure: DataStructure
+  nestedStructs: string[]
+  arrayFlag: boolean
+}
+function structIteration({
+  dataStructure,
+  nestedStructs,
+  arrayFlag = false
+}: IterationArgs) {
+  return ([key, prop]: [
     string,
     DataStructure | DataStructureArray
   ]): string => {
@@ -77,9 +117,21 @@ export function buildRustStruct(
           type = Object.keys(prop)[0].toUpperCase()
           arrayFlag = false
         }
-        nestedStructs.push(buildRustStruct(dataEntry, type, arrayFlag))
+        nestedStructs.push(
+          buildRustStruct({
+            dataStructure: dataEntry,
+            structName: type,
+            arrayFlag
+          })
+        )
       } else {
-        nestedStructs.push(buildRustStruct(dataEntry, type, false))
+        nestedStructs.push(
+          buildRustStruct({
+            dataStructure: dataEntry,
+            structName: type,
+            arrayFlag: false
+          })
+        )
       }
     }
 
@@ -91,23 +143,4 @@ export function buildRustStruct(
 `
     }
   }
-  // we never want to see this in the rust file
-  let struct = 'ERROR'
-  if (isArray(dataStructure) && isArray(dataStructure[0])) {
-    struct = dataStructure.map(structIteration).join('')
-  } else {
-    // @ts-ignore
-    struct = Object.entries(dataStructure).map(structIteration).join('')
-  }
-  let mainStruct
-  if (!arrayFlag) {
-    mainStruct = `#[derive(Deserialize, Debug, Serialize)]
-struct ${structName} {
-${struct}
-}
-`
-  } else {
-    mainStruct = `type ${structName} = ${struct};`
-  }
-  return mainStruct.concat(...nestedStructs)
 }

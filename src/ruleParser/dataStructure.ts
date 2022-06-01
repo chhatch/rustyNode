@@ -1,4 +1,4 @@
-import { get, isArray, set } from 'lodash'
+import { get, set } from 'lodash'
 import { DataStructure, DataType, DataTypesEnum, TermNode } from '../types'
 import { operatorDict } from './operatorDict'
 import { dataStructure } from './parseExpression'

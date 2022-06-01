@@ -1,4 +1,4 @@
-import { DataStructure, ParsedRule } from '../types'
+import { DataStructure, DataStructureArray, ParsedRule } from '../types'
 import { dataStructure } from '../ruleParser/parseExpression'
 import {
   elseStatement,
@@ -9,6 +9,7 @@ import {
   processAndWrite,
   readAndParse
 } from './rustTemplates'
+import { isArray } from 'lodash'
 
 export function compileRust(inputPath: string, outputPath: string) {
   return (rules: ParsedRule[]): string => {
@@ -51,30 +52,56 @@ const rustTypes = {
 
 export function buildRustStruct(
   dataStructure: DataStructure,
-  structName = 'Data'
+  structName = 'Data',
+  arrayFlag = false
 ): string {
   const nestedStructs: string[] = []
-  const mainStruct = `#[derive(Deserialize, Debug, Serialize)]
-struct ${structName} {
-  // map over object or array here
-${Object.entries(dataStructure)
-  .map(([key, prop]) => {
+  const structIteration = ([key, prop]: [
+    string,
+    DataStructure | DataStructureArray
+  ]): string => {
     let type
+
     if ('type' in prop && typeof prop.type === 'string') {
       if (prop.type !== 'unknown') type = rustTypes[prop.type]
       else throw new Error(`Unknown type at key: ${key}`)
     } else {
       type = key.toUpperCase()
       nestedStructs.push(
-        buildRustStruct(dataStructure[key] as DataStructure, type)
+        buildRustStruct(
+          dataStructure[key] as DataStructure,
+          type,
+          isArray(prop) || isFinite(Number(key))
+        )
       )
     }
 
-    return `${key}: ${type},
+    if (arrayFlag) {
+      // @ts-ignore
+      return `Vec<${type}>
 `
-  })
-  .join('')}}
+    } else {
+      return `${key}: ${type},
 `
-
+    }
+  }
+  // we never want to see this in the rust file
+  let struct = 'ERROR'
+  if (isArray(dataStructure) && isArray(dataStructure[0])) {
+    struct = dataStructure.map(structIteration).join('')
+  } else {
+    // @ts-ignore
+    struct = Object.entries(dataStructure).map(structIteration).join('')
+  }
+  let mainStruct
+  if (!arrayFlag) {
+    mainStruct = `#[derive(Deserialize, Debug, Serialize)]
+struct ${structName} {
+${struct}
+}
+`
+  } else {
+    mainStruct = `type ${structName} = ${struct};`
+  }
   return mainStruct.concat(...nestedStructs)
 }

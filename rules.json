@@ -1,5 +1,9 @@
 [
-  { "if": "node.fp == true", "then": "rust[0] = 'win'", "else": "ruby = 1337" },
+  {
+    "if": "node.fp[0] == true",
+    "then": "rust[0] = 'win'",
+    "else": "ruby = 1337"
+  },
   {
     "if": "day_of_week == 'Wednesday'",
     "then": "fee = 2",

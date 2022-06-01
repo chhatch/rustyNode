@@ -45,7 +45,8 @@ export function compileRust(inputPath: string, outputPath: string) {
 const rustTypes = {
   boolean: 'bool',
   string: 'String',
-  number: 'i32'
+  number: 'i32',
+  array: 'Vec<string>'
 }
 
 export function buildRustStruct(
@@ -55,10 +56,11 @@ export function buildRustStruct(
   const nestedStructs: string[] = []
   const mainStruct = `#[derive(Deserialize, Debug, Serialize)]
 struct ${structName} {
+  // map over object or array here
 ${Object.entries(dataStructure)
   .map(([key, prop]) => {
     let type
-    if (typeof prop.type === 'string') {
+    if ('type' in prop && typeof prop.type === 'string') {
       if (prop.type !== 'unknown') type = rustTypes[prop.type]
       else throw new Error(`Unknown type at key: ${key}`)
     } else {

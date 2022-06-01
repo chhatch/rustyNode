@@ -7,13 +7,17 @@ export interface ParsedRule {
   }
 }
 export type DataTypesEnum = 'number' | 'boolean' | 'string' | 'unknown'
+
+export type DataStructureArray = [
+  DataTypesEnum | DataStructureArray | DataStructure
+]
 export interface DataStructure {
-  [key: string]:
-    | {
-        type: DataTypesEnum
-        mutable: boolean
-      }
-    | DataStructure
+  [key: string]: DataType | DataStructure | DataStructureArray
+}
+
+export interface DataType {
+  type: DataTypesEnum
+  mutable: boolean
 }
 
 export interface TermNode {

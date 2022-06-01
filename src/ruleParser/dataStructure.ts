@@ -1,5 +1,5 @@
-import { get, set } from 'lodash'
-import { DataStructure, DataTypesEnum, TermNode } from '../types'
+import { get, isArray, set } from 'lodash'
+import { DataStructure, DataType, DataTypesEnum, TermNode } from '../types'
 import { operatorDict } from './operatorDict'
 import { dataStructure } from './parseExpression'
 import { PRIMITIVE, stringifyOperands } from './utilities'
@@ -16,25 +16,20 @@ export function addKeysToDataStructure(
 }
 
 export function updateDataStructure(key: string, type: DataTypesEnum): void {
-  const dataEntry = key !== PRIMITIVE ? get(dataStructure, key) : ''
-  // temp to avoid key not found in data structure
-  // if (!dataEntry) throw new Error(`Key "${key}" not found in data structure`)
-  if (dataEntry && dataEntry.type !== 'unknown' && dataEntry.type !== type) {
+  if (key === PRIMITIVE)
+    throw new Error(`Cannot add primitive to data structure: ${key}`)
+  const dataEntry = get(dataStructure, key)
+  if ('type' in dataEntry) dataEntry as DataType
+  else throw new Error(`Unexpected data entry ${dataEntry}`)
+
+  if (!dataEntry) throw new Error(`Key "${key}" not found in data structure`)
+
+  if (dataEntry.type !== 'unknown' && dataEntry.type !== type) {
     throw new Error(
       `Property mutation not supported: Key "${key}" Existing type "${dataEntry.type}" New type "${type}"`
     )
-    // @ts-ignore
-    if (typeof dataEntry.type === 'object')
-      throw new Error(
-        `Object manipulation not supported ${JSON.stringify(
-          dataEntry,
-          null,
-          2
-        )}`
-      )
-    // @ts-ignore
-    dataEntry.type = type
   }
+  dataEntry.type = type
 }
 
 export function addTypeToDataStructure(operator: string) {
@@ -48,17 +43,18 @@ export function addTypeToDataStructure(operator: string) {
       const key = operand.key
       if (key == PRIMITIVE) continue
       if (type !== 'unknown' && operand.type == 'unknown') {
-        // @ts-ignore
         updateDataStructure(key, type)
         if (typeof key != 'string')
           throw new Error(`Invalid datastructure key: ${key}`)
         const dataTerm = get(dataStructure, key)
         // temp to avoid key not found in data structure
-        if (!dataTerm) return [operands, operator] //throw new Error(`Key not found in data structure: ${term}`)
-        if (operator == '=') dataTerm.mutable = true
-        // @ts-ignore
-        checkIfMutation(operands, dataTerm.type, type)
-        dataTerm.type = type
+        // if (!dataTerm) throw new Error(`Key not found in data structure: ${term}`)
+        if (operator == '=' && 'mutable' in dataTerm) dataTerm.mutable = true
+        if ('type' in dataTerm && typeof dataTerm.type === 'string') {
+          checkIfMutation(operands, dataTerm.type, type)
+          dataTerm.type = type
+        } else
+          throw new Error(`We goofed up ${JSON.stringify(operator, null, 2)}`)
       }
     }
     return [operands, operator]
@@ -66,6 +62,7 @@ export function addTypeToDataStructure(operator: string) {
 }
 function getType(operands: TermNode[]) {
   // this is where we can walk to nodes to get types
+  // @ts-ignore
   const types = operands.map((term) => get(dataStructure, term.key)?.type)
   const existingTypes = operands.map((term) => term.type)
 
@@ -85,7 +82,6 @@ function getType(operands: TermNode[]) {
     return currentType
   }
 
-  // @ts-ignore
   const type = filteredTypes.reduce(reduceTypes, 'unknown')
   return type
 }

@@ -67,7 +67,7 @@ const rulesToRust = {
       case 'string':
         rustString = term.replace(/^'|'$/g, '"') + '.to_string()'
         break
-      // the catches dotted objects too
+      // the catches dotted objects and arrays too
       case 'unknown':
         key = term
         rustString = `parsed_data.${term}`
@@ -81,11 +81,13 @@ const rulesToRust = {
 }
 
 function getType(value: string) {
-  const lc = value.toLocaleLowerCase()
+  const lc = value.toLowerCase()
   const isBool = lc == 'true' || lc == 'false'
+  // if (/^\w+\[\d+\]$/.test(value)) return 'array'
   if (/^('|").+\1$/.test(value)) return 'string'
   if (isFinite(Number(value))) return 'number'
   if (isBool) return 'boolean'
+  // using this for objects and arrays
   if (typeof value === 'string') return 'unknown'
   throw new Error(`Value type not supported: ${value}`)
 }

@@ -9,7 +9,7 @@ import {
   processAndWrite,
   readAndParse
 } from './rustTemplates'
-import { isArray } from 'lodash'
+import { isArray, isObject } from 'lodash'
 
 export function compileRust(inputPath: string, outputPath: string) {
   return (rules: ParsedRule[]): string => {
@@ -67,17 +67,23 @@ export function buildRustStruct(
       else throw new Error(`Unknown type at key: ${key}`)
     } else {
       type = key.toUpperCase()
-      nestedStructs.push(
-        buildRustStruct(
-          dataStructure[key] as DataStructure,
-          type,
-          isArray(prop) || isFinite(Number(key))
-        )
-      )
+      const dataEntry = dataStructure[key] as DataStructure
+      const keyIsNumber = isFinite(Number(key))
+
+      if (isArray(prop) || keyIsNumber) {
+        let arrayFlag = true
+        if (keyIsNumber && isObject(prop) && !isArray(prop)) {
+          // arrays are heterogeneous
+          type = Object.keys(prop)[0].toUpperCase()
+          arrayFlag = false
+        }
+        nestedStructs.push(buildRustStruct(dataEntry, type, arrayFlag))
+      } else {
+        nestedStructs.push(buildRustStruct(dataEntry, type, false))
+      }
     }
 
     if (arrayFlag) {
-      // @ts-ignore
       return `Vec<${type}>
 `
     } else {

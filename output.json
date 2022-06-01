@@ -5,8 +5,9 @@
     ]
   },
   "rust": [
-    "win",
-    "what?"
+    {
+      "nail": "win"
+    }
   ],
   "ruby": 5,
   "day_of_week": "Wednesday",

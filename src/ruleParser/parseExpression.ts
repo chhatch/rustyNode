@@ -8,21 +8,24 @@ import { PRIMITIVE, termNode, unwrapThunks } from './utilities'
 
 export const dataStructure = {} as DataStructure
 
-const joinWith = ([[lhs, rhs], operator]: [TermNode[], string]): TermNode => {
-  // need to check the operator here like in joinFunc
+const joinWith = ([[lhs, rhs], operator, type]: [
+  TermNode[],
+  string,
+  DataTypesEnum
+]): TermNode => {
   const resultString = `${lhs.rustString} ${operator} ${rhs.rustString}`
-  let type: DataTypesEnum = 'unknown'
-  if (lhs.type != 'unknown') type = lhs.type
-  else if (rhs.type != 'unknown') type = rhs.type
-  // updates here when move to keys array
   const node = termNode(lhs.key, type, resultString, operator, [lhs, rhs])
   return node
 }
-const joinFunc = ([[lhs, rhs], prefixOp]: [TermNode[], string]): TermNode => {
-  if (prefixOp != 'POW')
-    throw new Error(`Prefix Op: ${prefixOp} not recognized.`)
-  const resultString = `operations::pow(${lhs.rustString})`
-  const node = termNode(resultString, 'number', resultString, 'POW', [lhs, rhs])
+const joinFunc = ([[lhs, rhs], prefixOp, type]: [
+  TermNode[],
+  string,
+  DataTypesEnum
+]): TermNode => {
+  const resultString = `operations::${prefixOp.toLowerCase()}(${
+    lhs.rustString
+  })`
+  const node = termNode(resultString, type, resultString, prefixOp, [lhs, rhs])
   return node
 }
 
@@ -36,12 +39,7 @@ const rulesToRust = {
   },
 
   PREFIX_OPS: {
-    POW: flow(
-      unwrapThunks,
-
-      addTypeToDataStructure('POW'),
-      joinFunc
-    )
+    POW: flow(unwrapThunks, addTypeToDataStructure('POW'), joinFunc)
   },
   PRECEDENCE: [['SQRT', 'POW'], ['*', '/'], ['+', '-'], [',']],
   GROUP_OPEN: '(',

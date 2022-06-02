@@ -33,7 +33,7 @@ export function updateDataStructure(key: string, type: DataTypesEnum): void {
 }
 
 export function addTypeToDataStructure(operator: string) {
-  return function (operands: TermNode[]): [TermNode[], string] {
+  return function (operands: TermNode[]): [TermNode[], string, DataTypesEnum] {
     const type = getType(operands)
     const operatorType = operatorDict[operator].resultType
     if (type != 'unknown' && operatorType != 'unknown' && operatorType != type)
@@ -57,7 +57,7 @@ export function addTypeToDataStructure(operator: string) {
           throw new Error(`We goofed up ${JSON.stringify(operator, null, 2)}`)
       }
     }
-    return [operands, operator]
+    return [operands, operator, type]
   }
 }
 function getType(operands: TermNode[]) {

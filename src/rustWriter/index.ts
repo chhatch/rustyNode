@@ -1,4 +1,9 @@
-import { DataStructure, DataStructureArray, ParsedRule } from '../types'
+import {
+  DataStructure,
+  DataStructureArray,
+  DataType,
+  ParsedRule
+} from '../types'
 import { dataStructure } from '../ruleParser/parseExpression'
 import {
   elseStatement,
@@ -46,8 +51,7 @@ export function compileRust(inputPath: string, outputPath: string) {
 const rustTypes = {
   boolean: 'bool',
   string: 'String',
-  number: 'i32',
-  array: 'Vec<string>'
+  number: 'i32'
 }
 interface BuildArgs {
   dataStructure: DataStructure
@@ -69,7 +73,6 @@ export function buildRustStruct({
       .join('')
   } else {
     struct = Object.entries(dataStructure)
-      // @ts-ignore
       .map(structIteration({ dataStructure, nestedStructs, arrayFlag }))
       .join('')
   }
@@ -98,7 +101,7 @@ function structIteration({
 }: IterationArgs) {
   return ([key, prop]: [
     string,
-    DataStructure | DataStructureArray
+    DataStructure | DataStructureArray | DataType
   ]): string => {
     let type
 

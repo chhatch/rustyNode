@@ -1,9 +1,4 @@
-import {
-  DataStructure,
-  DataStructureArray,
-  DataType,
-  ParsedRule
-} from '../types'
+import { DataStructure, DataStructureArray, ParsedRule } from '../types'
 import { dataStructure } from '../ruleParser/parseExpression'
 import {
   elseStatement,
@@ -14,7 +9,15 @@ import {
   processAndWrite,
   readAndParse
 } from './rustTemplates'
-import { isArray, isObject } from 'lodash'
+import { flow, isArray } from 'lodash'
+import {
+  FlowArgs,
+  hasPropTypeFn,
+  isFinalKey,
+  rustStruct,
+  rustStructType,
+  rustVecType
+} from './utilities'
 
 export function compileRust(inputPath: string, outputPath: string) {
   return (rules: ParsedRule[]): string => {
@@ -53,97 +56,116 @@ const rustTypes = {
   string: 'String',
   number: 'i32'
 }
-interface BuildArgs {
-  dataStructure: DataStructure
+interface BuildArgs<T> {
+  dataStructure: T
   structName?: string
-  arrayFlag?: boolean
 }
 
 export function buildRustStruct({
   dataStructure,
-  structName = 'Data',
-  arrayFlag = false
-}: BuildArgs): string {
-  const nestedStructs: string[] = []
-  // we never want to see this in the rust file
-  let struct = 'ERROR'
-  if (isArray(dataStructure) && isArray(dataStructure[0])) {
+  structName = 'Data'
+}: BuildArgs<DataStructure>): string {
+  const nestedTypes: string[] = []
+  const struct = Object.entries(dataStructure)
+    .map(
+      structIteration({
+        dataStructure,
+        nestedTypes,
+        typeBuilder: rustStructType
+      })
+    )
+    .join('')
+
+  return rustStruct(structName, struct, nestedTypes)
+}
+
+export function buildRustType({
+  dataStructure,
+  structName
+}: BuildArgs<DataStructureArray>): string {
+  const nestedTypes: string[] = []
+  let struct
+
+  if (isArray(dataStructure[0])) {
     struct = dataStructure
-      .map(structIteration({ dataStructure, nestedStructs, arrayFlag }))
+      // @ts-ignore
+      .map(
+        structIteration({
+          nestedTypes,
+          typeBuilder: rustVecType
+        })
+      )
       .join('')
   } else {
     struct = Object.entries(dataStructure)
-      .map(structIteration({ dataStructure, nestedStructs, arrayFlag }))
+      .map(
+        structIteration({
+          nestedTypes,
+          typeBuilder: rustVecType
+        })
+      )
       .join('')
   }
-  let mainStruct
-  if (!arrayFlag) {
-    mainStruct = `#[derive(Deserialize, Debug, Serialize)]
-struct ${structName} {
-${struct}
-}
-`
-  } else {
-    mainStruct = `type ${structName} = ${struct};`
-  }
-  return mainStruct.concat(...nestedStructs)
+  return `type ${structName} = ${struct}`.concat(...nestedTypes)
 }
 
 interface IterationArgs {
-  dataStructure: DataStructure
-  nestedStructs: string[]
-  arrayFlag: boolean
+  nestedTypes: string[]
+  typeBuilder: (x: { key: string; type: string }) => string
 }
-function structIteration({
-  dataStructure,
-  nestedStructs,
-  arrayFlag = false
-}: IterationArgs) {
-  return ([key, prop]: [
-    string,
-    DataStructure | DataStructureArray | DataType
-  ]): string => {
-    let type
 
-    if ('type' in prop && typeof prop.type === 'string') {
-      if (prop.type !== 'unknown') type = rustTypes[prop.type]
-      else throw new Error(`Unknown type at key: ${key}`)
-    } else {
-      type = key.toUpperCase()
-      const dataEntry = dataStructure[key] as DataStructure
-      const keyIsNumber = isFinite(Number(key))
+function structIteration({ nestedTypes, typeBuilder }: IterationArgs) {
+  // @ts-ignore
+  return flow(
+    ([key, prop]) => ({ key, prop }),
+    hasPropTypeFn,
+    isFinalKey,
+    getType,
+    buildNestedTypes(nestedTypes),
+    typeBuilder
+  )
+}
 
-      if (isArray(prop) || keyIsNumber) {
-        let arrayFlag = true
-        if (keyIsNumber && isObject(prop) && !isArray(prop)) {
-          // arrays are heterogeneous
-          type = Object.keys(prop)[0].toUpperCase()
-          arrayFlag = false
-        }
-        nestedStructs.push(
-          buildRustStruct({
-            dataStructure: dataEntry,
-            structName: type,
-            arrayFlag
+function getType({ key, prop, hasPropType, isFinalKey }: FlowArgs) {
+  // @ts-ignore
+  if (hasPropType && (prop.type === 'unknown' || !prop.type))
+    throw new Error(`Unknown type at key: ${key}`)
+
+  const type: string = hasPropType
+    ? // @ts-ignore
+      rustTypes[prop.type]
+    : !isFinalKey
+    ? key.toUpperCase()
+    : Object.keys(prop)[0].toUpperCase()
+
+  return {
+    key,
+    prop,
+    type,
+    hasPropType,
+    isFinalKey
+  }
+}
+
+function buildNestedTypes(nestedTypes: string[]) {
+  return ({ key, prop, type, hasPropType }: FlowArgs) => {
+    if (!hasPropType) {
+      if (isArray(prop)) {
+        nestedTypes.push(
+          buildRustType({
+            dataStructure: prop as DataStructureArray,
+            structName: type
           })
         )
       } else {
-        nestedStructs.push(
+        nestedTypes.push(
           buildRustStruct({
-            dataStructure: dataEntry,
-            structName: type,
-            arrayFlag: false
+            dataStructure: prop as DataStructure,
+            structName: type
           })
         )
       }
     }
-
-    if (arrayFlag) {
-      return `Vec<${type}>
-`
-    } else {
-      return `${key}: ${type},
-`
-    }
+    return { key, type }
   }
 }

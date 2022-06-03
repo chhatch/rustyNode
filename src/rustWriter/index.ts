@@ -25,7 +25,7 @@ export function compileRust(inputPath: string, outputPath: string) {
       imports,
       buildRustStruct({ dataStructure }),
       fnOpen,
-      readAndParse.replace('INPUT_PATH', inputPath)
+      readAndParse(inputPath)
     ]
 
     for (const rule of rules) {
@@ -34,19 +34,12 @@ export function compileRust(inputPath: string, outputPath: string) {
       if (rule.if.operator !== '==' && rule.if.operator !== '!=')
         throw new Error(`Invalid operator: ${rule.operator}`)
 
-      stringParts.push(
-        ifStatement
-          .replace('IF_CONDITION', rule.if.rustString)
-          .replace('THEN', rule.then.rustString)
-      )
+      stringParts.push(ifStatement(rule.if.rustString, rule.then.rustString))
       if (rule.else) {
-        stringParts.push(elseStatement.replace('ELSE', rule.else.rustString))
+        stringParts.push(elseStatement(rule.else.rustString))
       }
     }
-    stringParts.push(
-      processAndWrite.replace('OUTPUT_PATH', outputPath),
-      fnClose
-    )
+    stringParts.push(processAndWrite(outputPath), fnClose)
     return stringParts.join('')
   }
 }

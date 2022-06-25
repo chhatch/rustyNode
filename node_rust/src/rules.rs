@@ -23,7 +23,6 @@ type RUST = Vec<NAIL>;
 struct NAIL {
     nail: String,
 }
-
 pub fn run(data_string: String) -> String {
     let mut parsed_data: Data =
         serde_json::from_str(&data_string).expect("JSON was not well-formatted");
@@ -43,6 +42,5 @@ pub fn run(data_string: String) -> String {
     if parsed_data.day_of_week != "Friday".to_string() {
         parsed_data.price = operations::pow(parsed_data.price, parsed_data.fee)
     }
-    let processed_data_string = serde_json::to_string_pretty(&parsed_data).unwrap();
-    return processed_data_string;
+    return serde_json::to_string_pretty(&parsed_data).unwrap();
 }

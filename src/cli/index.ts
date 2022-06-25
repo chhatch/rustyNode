@@ -8,7 +8,7 @@ export function processArgs() {
       rustPath: {
         alias: 'x',
         type: 'string',
-        default: 'node_rust/src/main.rs',
+        default: 'node_rust/src/rules.rs',
         describe: 'Path to write rust to'
       },
       rulesPath: {

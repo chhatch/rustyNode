@@ -5,13 +5,15 @@
   "main": "src/index.js",
   "scripts": {
     "build": "tsc",
-    "runNode": "node dist/wasmTest.js",
+    "rulesToRust": "node dist/index.js",
     "buildRust": "cargo build --manifest-path node_rust/Cargo.toml",
-    "buildWasm": "wasm-pack build node_rust",
     "formatRust": "cargo fmt --manifest-path node_rust/Cargo.toml",
     "runRust": "./node_rust/target/debug/main",
+    "rustChain": "yarn rulesToRust && yarn formatRust && yarn buildRust && yarn runRust",
+    "buildWasm": "cargo build --manifest-path node_rust/Cargo.toml && wasm-pack build node_rust/wasm_config/Cargo.toml",
+    "runWasm": "node dist/wasmTest.js",
+    "wasmChain": "yarn rulesToRust && yarn formatRust && yarn buildWasm && yarn runWasm",
     "test": "jest",
-    "start": "yarn runNode && yarn formatRust && yarn buildRust && yarn runRust",
     "lint": "eslint . --ext .ts",
     "format": "prettier --config prettier.config.js 'src/**/*.ts' --write",
     "watch": "tsc --build --watch --preserveWatchOutput"

@@ -1,7 +1,6 @@
 extern crate serde_json;
 use serde::Deserialize;
 use serde::Serialize;
-use web_sys::console;
 
 mod operations;
 
@@ -26,7 +25,6 @@ struct NAIL {
 }
 
 pub fn run(data_string: String) -> String {
-    console::log_1(&"Greetins from Rustland!".into());
     let mut parsed_data: Data =
         serde_json::from_str(&data_string).expect("JSON was not well-formatted");
     if parsed_data.node.fp[0] == true {

@@ -19,13 +19,14 @@ import {
   rustVecType
 } from './utilities'
 
+// temporarily not using paths here
 export function compileRust(inputPath: string, outputPath: string) {
   return (rules: ParsedRule[]): string => {
     const stringParts = [
       imports,
       buildRustStruct({ dataStructure }),
       fnOpen,
-      readAndParse(inputPath)
+      readAndParse()
     ]
 
     for (const rule of rules) {
@@ -39,7 +40,7 @@ export function compileRust(inputPath: string, outputPath: string) {
         stringParts.push(elseStatement(rule.else.rustString))
       }
     }
-    stringParts.push(processAndWrite(outputPath), fnClose)
+    stringParts.push(processAndWrite(), fnClose)
     return stringParts.join('')
   }
 }

@@ -62,7 +62,6 @@ export function buildRustStruct({
   const struct = Object.entries(dataStructure)
     .map(
       structIteration({
-        dataStructure,
         nestedTypes,
         typeBuilder: rustStructType
       })

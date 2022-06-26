@@ -48,7 +48,7 @@ export function compileRust(inputPath: string, outputPath: string) {
 const rustTypes = {
   boolean: 'bool',
   string: 'String',
-  number: 'i32'
+  number: 'f64'
 }
 interface BuildArgs<T> {
   dataStructure: T

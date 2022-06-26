@@ -1,3 +1,7 @@
-pub fn pow(x: i32, y: i32) -> i32 {
-    x.pow(y.try_into().unwrap())
+pub fn pow(x: f64, y: f64) -> f64 {
+    x.powf(y)
+}
+
+pub fn sqrt(x: f64) -> f64 {
+    x.sqrt()
 }

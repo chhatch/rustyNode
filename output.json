@@ -1,16 +1,6 @@
 {
-  "node": {
-    "fp": [
-      true
-    ]
-  },
-  "rust": [
-    {
-      "nail": 0
-    }
-  ],
-  "ruby": 5,
-  "day_of_week": "Wednesday",
-  "fee": 2,
-  "price": 100
+  "mult": 6.0,
+  "div": 1.5,
+  "pow": 4096.0,
+  "sqrt": 12.0
 }

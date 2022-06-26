@@ -15,7 +15,7 @@ describe('buildRustStruct', () => {
       struct Data {
       node: bool,
       rust: String,
-      ruby: i32,
+      ruby: f64,
 
       }
       "

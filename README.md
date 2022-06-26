@@ -27,10 +27,10 @@ The wasm code we generated is going to be used in a node module, so we have to i
 ## What's supported?
 
 - Only three data literal types are currently supported, number, string, and boolean.
-  - number types are 32 bit signed integers, floats have not been implemented.
+  - number types are 64 bit floats.
 - Variables can be prmitives, objects, or arrays
 - Only if/then rules, else is optional.
-- ==, !=, =, +, -, POW
+- ==, !=, =, +, -(minus and negative), \*, /, POW, and SQRT
 - assignment operations cannot change datatype.
 - Object nesting
 - Single rules or arrays of rules can be processed, e.g.

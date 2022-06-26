@@ -10,6 +10,9 @@ export const operatorDict: Record<
   ',': { resultType: 'unknown' },
   '+': { resultType: 'number' },
   '-': { resultType: 'number' },
+  '*': { resultType: 'number' },
+  '/': { resultType: 'number' },
   NEG: { resultType: 'number' },
-  POW: { resultType: 'number' }
+  POW: { resultType: 'number' },
+  SQRT: { resultType: 'number' }
 }

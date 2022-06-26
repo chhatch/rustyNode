@@ -4,7 +4,13 @@ import ExpressionParser, {
 import { flow } from 'lodash'
 import { DataStructure, DataTypesEnum, TermNode } from '../types'
 import { addKeysToDataStructure, addTypeToDataStructure } from './dataStructure'
-import { PRIMITIVE, termNode, unwrapThunks } from './utilities'
+import {
+  PRIMITIVE,
+  processArgumentList,
+  stringToRustFloat,
+  termNode,
+  unwrapThunks
+} from './utilities'
 
 export const dataStructure = {} as DataStructure
 
@@ -13,7 +19,9 @@ const joinWith = ([[lhs, rhs], operator, type]: [
   string,
   DataTypesEnum
 ]): TermNode => {
-  const resultString = `${lhs.rustString} ${operator} ${rhs.rustString}`
+  const resultString = `${stringToRustFloat(
+    lhs.rustString
+  )} ${operator} ${stringToRustFloat(rhs.rustString)}`
   const node = termNode(lhs.key, type, resultString, operator, [lhs, rhs])
   return node
 }
@@ -22,9 +30,9 @@ const joinFunc = ([[lhs, rhs], prefixOp, type]: [
   string,
   DataTypesEnum
 ]): TermNode => {
-  const resultString = `operations::${prefixOp.toLowerCase()}(${
+  const resultString = `operations::${prefixOp.toLowerCase()}(${processArgumentList(
     lhs.rustString
-  })`
+  )})`
   const node = termNode(resultString, type, resultString, prefixOp, [lhs, rhs])
   return node
 }
@@ -34,7 +42,7 @@ const neg = ([[lhs], prefixOp, type]: [
   string,
   DataTypesEnum
 ]): TermNode => {
-  const resultString = `-${lhs.rustString}`
+  const resultString = `-${stringToRustFloat(lhs.rustString)}`
   const node = termNode(resultString, type, resultString, prefixOp, [lhs])
   return node
 }
@@ -43,6 +51,8 @@ const rulesToRust = {
   INFIX_OPS: {
     '+': flow(unwrapThunks, addTypeToDataStructure('+'), joinWith),
     '-': flow(unwrapThunks, addTypeToDataStructure('-'), joinWith),
+    '*': flow(unwrapThunks, addTypeToDataStructure('*'), joinWith),
+    '/': flow(unwrapThunks, addTypeToDataStructure('/'), joinWith),
     '=': flow(unwrapThunks, addTypeToDataStructure('='), joinWith),
     '==': flow(unwrapThunks, addTypeToDataStructure('=='), joinWith),
     '!=': flow(unwrapThunks, addTypeToDataStructure('!='), joinWith),
@@ -51,9 +61,10 @@ const rulesToRust = {
 
   PREFIX_OPS: {
     POW: flow(unwrapThunks, addTypeToDataStructure('POW'), joinFunc),
+    SQRT: flow(unwrapThunks, addTypeToDataStructure('SQRT'), joinFunc),
     NEG: flow(unwrapThunks, addTypeToDataStructure('NEG'), neg)
   },
-  PRECEDENCE: [['NEG', 'POW'], ['*', '/'], ['+', '-'], [',']],
+  PRECEDENCE: [['NEG', 'POW', 'SQRT'], ['*', '/'], ['+', '-'], [',']],
   GROUP_OPEN: '(',
   GROUP_CLOSE: ')',
   SEPARATOR: ' ',

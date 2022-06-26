@@ -11,9 +11,9 @@ mod operations;
 struct Data {
 node: bool,
 rust: String,
-ruby: i32,
+ruby: f64,
 day_of_week: String,
-price: i32,
+price: f64,
 
 }
 pub fn run(data_string: String) -> String {

@@ -1,6 +1,6 @@
 # hey you!
 
-Just in case you actually want to set up this project I think there's a bit of a chicken-and-egg problem with building it from scratch.
+Just in case you actually want to set up this project, I think there's a bit of a chicken-and-egg problem with building it from scratch.
 The wasm stuff is imported as a node module. We need it for the project to build but it gets build by the project. _shrugs_
 
 # rustyNode

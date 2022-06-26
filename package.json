@@ -12,7 +12,7 @@
     "rustChain": "yarn rulesToRust && yarn formatRust && yarn buildRust && yarn runRust",
     "buildWasm": "wasm-pack build node_rust --out-name index",
     "runWasm": "node dist/wasmRules.js",
-    "wasmChain": "yarn rulesToRust && yarn formatRust && yarn buildWasm && yarn runWasm",
+    "wasmChain": "yarn rulesToRust && yarn formatRust && yarn buildWasm && yarn && yarn runWasm",
     "test": "jest",
     "lint": "eslint . --ext .ts",
     "format": "prettier --config prettier.config.js 'src/**/*.ts' --write",

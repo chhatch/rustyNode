@@ -6,7 +6,7 @@
   },
   "rust": [
     {
-      "nail": "win"
+      "nail": 0
     }
   ],
   "ruby": 5,

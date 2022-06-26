@@ -1,6 +1,6 @@
 {
   "node": { "fp": [true] },
-  "rust": [{ "nail": "meh" }],
+  "rust": [{ "nail": 3 }],
   "ruby": 5,
   "day_of_week": "Wednesday",
   "price": 10,

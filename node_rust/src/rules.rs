@@ -21,13 +21,13 @@ type FP = Vec<bool>;
 type RUST = Vec<NAIL>;
 #[derive(Deserialize, Debug, Serialize)]
 struct NAIL {
-    nail: String,
+    nail: i32,
 }
 pub fn run(data_string: String) -> String {
     let mut parsed_data: Data =
         serde_json::from_str(&data_string).expect("JSON was not well-formatted");
     if parsed_data.node.fp[0] == true {
-        parsed_data.rust[0].nail = "win".to_string()
+        parsed_data.rust[0].nail = 1 - 1 + 5
     } else {
         parsed_data.ruby = 1337
     }

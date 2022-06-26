@@ -44,4 +44,25 @@ describe('parseRules', () => {
     ]
     expect(parseRules(rules)).toEqual(result)
   })
+
+  it.only('should parse rules with -', () => {
+    const rule = { if: 'node == true', then: 'rust = 1 - 1' }
+    const result = [
+      {
+        if: {
+          lhs: 'node',
+          operator: '==',
+          rhs: 'true',
+          rustString: 'parsed_data.node == true'
+        },
+        then: {
+          lhs: 'rust',
+          operator: '=',
+          rhs: '1',
+          rustString: 'parsed_data.rust = 1 - 1'
+        }
+      }
+    ]
+    expect(parseRules(rule)).toEqual(result)
+  })
 })

@@ -32,6 +32,7 @@ const joinFunc = ([[lhs, rhs], prefixOp, type]: [
 const rulesToRust = {
   INFIX_OPS: {
     '+': flow(unwrapThunks, addTypeToDataStructure('+'), joinWith),
+    '-': flow(unwrapThunks, addTypeToDataStructure('-'), joinWith),
     '=': flow(unwrapThunks, addTypeToDataStructure('='), joinWith),
     '==': flow(unwrapThunks, addTypeToDataStructure('=='), joinWith),
     '!=': flow(unwrapThunks, addTypeToDataStructure('!='), joinWith),

@@ -29,6 +29,16 @@ const joinFunc = ([[lhs, rhs], prefixOp, type]: [
   return node
 }
 
+const neg = ([[lhs], prefixOp, type]: [
+  TermNode[],
+  string,
+  DataTypesEnum
+]): TermNode => {
+  const resultString = `-${lhs.rustString}`
+  const node = termNode(resultString, type, resultString, prefixOp, [lhs])
+  return node
+}
+
 const rulesToRust = {
   INFIX_OPS: {
     '+': flow(unwrapThunks, addTypeToDataStructure('+'), joinWith),
@@ -40,9 +50,10 @@ const rulesToRust = {
   },
 
   PREFIX_OPS: {
-    POW: flow(unwrapThunks, addTypeToDataStructure('POW'), joinFunc)
+    POW: flow(unwrapThunks, addTypeToDataStructure('POW'), joinFunc),
+    NEG: flow(unwrapThunks, addTypeToDataStructure('NEG'), neg)
   },
-  PRECEDENCE: [['SQRT', 'POW'], ['*', '/'], ['+', '-'], [',']],
+  PRECEDENCE: [['NEG', 'POW'], ['*', '/'], ['+', '-'], [',']],
   GROUP_OPEN: '(',
   GROUP_CLOSE: ')',
   SEPARATOR: ' ',

@@ -1,6 +1,11 @@
 import { parseRules } from '../src/ruleParser'
+import { dataStructure } from '../src/ruleParser/parseExpression'
 
 describe('parseRules', () => {
+  beforeEach(() => {
+    // @ts-ignore shared mutable state FTW!!
+    dataStructure = {}
+  })
   it('should parse rules', () => {
     const rules = [
       { if: 'node == true', then: "rust = 'win'", else: 'ruby = 1337' },
@@ -43,5 +48,47 @@ describe('parseRules', () => {
       }
     ]
     expect(parseRules(rules)).toEqual(result)
+  })
+
+  it('should parse rules with minus operator, -', () => {
+    const rule = { if: 'node == true', then: 'rust = 1 - 1' }
+    const result = [
+      {
+        if: {
+          lhs: 'node',
+          operator: '==',
+          rhs: 'true',
+          rustString: 'parsed_data.node == true'
+        },
+        then: {
+          lhs: 'rust',
+          operator: '=',
+          rhs: '1',
+          rustString: 'parsed_data.rust = 1 - 1'
+        }
+      }
+    ]
+    expect(parseRules(rule)).toEqual(result)
+  })
+
+  it('should parse rules with negative operator', () => {
+    const rule = { if: 'true', then: 'rust = -1' }
+    const result = [
+      {
+        if: {
+          lhs: 'true',
+          operator: undefined,
+          rhs: undefined,
+          rustString: 'true'
+        },
+        then: {
+          lhs: 'rust',
+          operator: '=',
+          rhs: '-1',
+          rustString: 'parsed_data.rust = -1'
+        }
+      }
+    ]
+    expect(parseRules(rule)).toEqual(result)
   })
 })

@@ -1,7 +1,7 @@
 [
   {
     "if": "node.fp[0] == true",
-    "then": "rust[0].nail = 'win'",
+    "then": "rust[0].nail = 1 - 1 + 5",
     "else": "ruby = 1337"
   },
   {

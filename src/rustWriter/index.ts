@@ -32,8 +32,8 @@ export function compileRust(inputPath: string, outputPath: string) {
     for (const rule of rules) {
       if (!rule.if || !rule.then)
         throw new Error(`Rule must have if and then. Invalid rule: ${rule}`)
-      if (rule.if.operator !== '==' && rule.if.operator !== '!=')
-        throw new Error(`Invalid operator: ${rule.operator}`)
+      // if (rule.if.operator !== '==' && rule.if.operator !== '!=')
+      //   throw new Error(`Invalid operator: ${rule.operator}`)
 
       stringParts.push(ifStatement(rule.if.rustString, rule.then.rustString))
       if (rule.else) {

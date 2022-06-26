@@ -19,13 +19,15 @@ export const rustVecType = ({ type }: BuilderType) => `Vec<${type}>;
 `
 export const rustStructType = ({ key, type }: BuilderType) => `${key}: ${type},
 `
-export const hasPropTypeFn = (x: { key: string; prop: any }) => {
-  // @ts-ignore
+export const hasPropTypeFn = (x: { key: string; prop: { type: string } }) => {
   const hasPropType = 'type' in x.prop && typeof x.prop.type === 'string'
   return { ...x, hasPropType }
 }
 
-export const isFinalKey = (x: { key: string; prop: any }) => {
+export const isFinalKey = (x: {
+  key: string
+  prop: Record<string, string>
+}) => {
   const isFinalKey =
     isFinite(Number(x.key)) && isObject(x.prop) && !isArray(x.prop)
   return { ...x, isFinalKey }

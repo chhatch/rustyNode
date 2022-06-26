@@ -7,6 +7,17 @@ The wasm stuff is imported as a node module. We need it for the project to build
 
 Let's explore using typescript to compile rust from a json template!
 
+## Installation Prereqs
+
+- yarn
+- node (I'm using 16)
+- rust (1.61.0)
+- cargo
+- wasm-pack
+  - `curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh`
+- probably some other stuff
+  Instructions for installing
+
 ## Installation
 
 `yarn install`
@@ -80,9 +91,9 @@ running `yarn start` will generate and run a rust program that reads `input.json
 {
   "node": false,
   "rust": "meh",
-  "ruby": 1337,
+  "ruby": 1337.0,
   "day_of_week": "Wednesday",
-  "price": 15
+  "price": 15.0
 }
 ```
 

@@ -85,7 +85,7 @@ and this `input.json`,
 }
 ```
 
-running `yarn start` will generate and run a rust program that reads `input.json`, executes the rules, and produces this `output.json`,
+running `yarn rustChain` will generate and run a rust program that reads `input.json`, executes the rules, and produces this `output.json`,
 
 ```json
 {
@@ -117,7 +117,7 @@ and this `input.json`,
 }
 ```
 
-running `yarn start` will generate and run a rust program that reads `input.json`, executes the rules, and produces this `output.json`,
+running `yarn rustChain` will generate and run a rust program that reads `input.json`, executes the rules, and produces this `output.json`,
 
 ```json
 {

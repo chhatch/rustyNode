@@ -1,3 +1,4 @@
 node_modules
 node_rust/target/
 dist
+.DS_Store

@@ -1,8 +1,6 @@
 extern crate serde_json;
 use serde::Deserialize;
 use serde::Serialize;
-use std::fs;
-use std::io::Read;
 
 mod operations;
 
@@ -25,12 +23,7 @@ type RUST = Vec<NAIL>;
 struct NAIL {
     nail: String,
 }
-fn main() {
-    let mut file = fs::File::open("input.json").unwrap();
-    let mut data_string = String::new();
-
-    file.read_to_string(&mut data_string).unwrap();
-
+pub fn run(data_string: String) -> String {
     let mut parsed_data: Data =
         serde_json::from_str(&data_string).expect("JSON was not well-formatted");
     if parsed_data.node.fp[0] == true {
@@ -49,7 +42,5 @@ fn main() {
     if parsed_data.day_of_week != "Friday".to_string() {
         parsed_data.price = operations::pow(parsed_data.price, parsed_data.fee)
     }
-    let processed_data_string = serde_json::to_string_pretty(&parsed_data).unwrap();
-    println!("{}", processed_data_string);
-    fs::write("output.json", processed_data_string).expect("Unable to write file");
+    return serde_json::to_string_pretty(&parsed_data).unwrap();
 }

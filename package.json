@@ -5,15 +5,19 @@
   "main": "src/index.js",
   "scripts": {
     "build": "tsc",
-    "runNode": "node dist/src/index.js",
+    "rulesToRust": "node dist/index.js",
     "buildRust": "cargo build --manifest-path node_rust/Cargo.toml",
     "formatRust": "cargo fmt --manifest-path node_rust/Cargo.toml",
     "runRust": "./node_rust/target/debug/main",
+    "rustChain": "yarn rulesToRust && yarn formatRust && yarn buildRust && yarn runRust",
+    "buildWasm": "wasm-pack build node_rust --out-name index",
+    "runWasm": "node dist/wasmRules.js",
+    "wasmChain": "yarn rulesToRust && yarn formatRust && yarn buildWasm && yarn && yarn runWasm",
     "test": "jest",
-    "start": "yarn runNode && yarn formatRust && yarn buildRust && yarn runRust",
     "lint": "eslint . --ext .ts",
     "format": "prettier --config prettier.config.js 'src/**/*.ts' --write",
-    "watch": "tsc --build --watch --preserveWatchOutput"
+    "watch": "tsc --build --watch --preserveWatchOutput",
+    "purge": "rm -rf node_modules && rm -rf dist && rm -rf node_rust/pkg && rm -rf node_rust/target"
   },
   "author": "",
   "license": "ISC",
@@ -33,6 +37,8 @@
   "dependencies": {
     "expressionparser": "^1.1.5",
     "jest": "^28.1.0",
-    "lodash": "^4.17.21"
-  }
+    "lodash": "^4.17.21",
+    "node_rust": "file:./node_rust/pkg"
+  },
+  "type": "commonjs"
 }

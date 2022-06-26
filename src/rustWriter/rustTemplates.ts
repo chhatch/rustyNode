@@ -1,24 +1,15 @@
 export const imports = `extern crate serde_json;
 use serde::Deserialize;
 use serde::Serialize;
-use std::fs;
-use std::io::Read;
 
 mod operations;
 
 `
 
-export const fnOpen = `fn main() {
+export const fnOpen = `pub fn run(data_string: String) -> String {
 `
 
-export const readAndParse = (
-  path: string
-) => `    let mut file = fs::File::open("${path}").unwrap();
-    let mut data_string = String::new();
-
-    file.read_to_string(&mut data_string).unwrap();
-
-    let mut parsed_data: Data =
+export const readAndParse = () => `    let mut parsed_data: Data =
         serde_json::from_str(&data_string).expect("JSON was not well-formatted");
 `
 
@@ -35,11 +26,8 @@ export const elseStatement = (expression: string) => `else {
     }
 `
 
-export const processAndWrite = (
-  path: string
-) => `let processed_data_string = serde_json::to_string_pretty(&parsed_data).unwrap();
-    println!("{}", processed_data_string);
-    fs::write("${path}", processed_data_string).expect("Unable to write file");
+export const processAndWrite =
+  () => `return serde_json::to_string_pretty(&parsed_data).unwrap();
 `
 
 export const fnClose = `}`

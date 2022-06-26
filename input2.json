@@ -1,5 +1,0 @@
-{
-  "node": { "fp": true },
-  "rust": { "status": "meh" },
-  "ruby": { "magicNumber": 5 }
-}

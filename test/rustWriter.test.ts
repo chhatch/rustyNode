@@ -10,32 +10,35 @@ describe('buildRustStruct', () => {
       ruby: { type: 'number', mutable: true }
     } as DataStructure
 
-    expect(buildRustStruct(dataStructure)).toMatchInlineSnapshot(`
-"#[derive(Deserialize, Debug, Serialize)]
-struct Data {
-node: bool,
-rust: String,
-ruby: i32,
-}
-"
-`)
+    expect(buildRustStruct({ dataStructure })).toMatchInlineSnapshot(`
+      "#[derive(Deserialize, Debug, Serialize)]
+      struct Data {
+      node: bool,
+      rust: String,
+      ruby: i32,
+
+      }
+      "
+    `)
   })
   it('should build nested structs', () => {
     const dataStructure = {
       node: { fp: { type: 'boolean', mutable: false } }
     } as DataStructure
 
-    expect(buildRustStruct(dataStructure)).toMatchInlineSnapshot(`
-"#[derive(Deserialize, Debug, Serialize)]
-struct Data {
-node: NODE,
-}
-#[derive(Deserialize, Debug, Serialize)]
-struct NODE {
-fp: bool,
-}
-"
-`)
+    expect(buildRustStruct({ dataStructure })).toMatchInlineSnapshot(`
+      "#[derive(Deserialize, Debug, Serialize)]
+      struct Data {
+      node: NODE,
+
+      }
+      #[derive(Deserialize, Debug, Serialize)]
+      struct NODE {
+      fp: bool,
+
+      }
+      "
+    `)
   })
 })
 

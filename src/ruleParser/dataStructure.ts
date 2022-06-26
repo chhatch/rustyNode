@@ -47,8 +47,8 @@ export function addTypeToDataStructure(operator: string) {
         if (typeof key != 'string')
           throw new Error(`Invalid datastructure key: ${key}`)
         const dataTerm = get(dataStructure, key)
-        // temp to avoid key not found in data structure
-        // if (!dataTerm) throw new Error(`Key not found in data structure: ${term}`)
+        if (!dataTerm)
+          throw new Error(`Key not found in data structure: ${key}`)
         if (operator == '=' && 'mutable' in dataTerm) dataTerm.mutable = true
         if ('type' in dataTerm && typeof dataTerm.type === 'string') {
           checkIfMutation(operands, dataTerm.type, type)

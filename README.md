@@ -61,6 +61,9 @@ The wasm code we generated is going to be used in a node module, so we have to i
 
 - Object and array literals
 - nested arrays
+- grouping operations with parentheses
+  - This might seem strange, but the expression parser evaluates what's inside the parentheses and just returns the result, which is our case is rust.
+  - For example `test = 1 - (10 + 5)` evaluates to `parsed_data.test = 1 - 10 + 5` whoops!
 
 ## Simple Example
 

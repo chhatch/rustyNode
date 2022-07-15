@@ -1,10 +1,5 @@
 export interface ParsedRule {
-  [key: string]: {
-    lhs: string
-    operator: string
-    rhs: string
-    rustString: string
-  }
+  [key: string]: string
 }
 export type DataTypesEnum = 'number' | 'boolean' | 'string' | 'unknown'
 

@@ -35,9 +35,9 @@ export function compileRust(inputPath: string, outputPath: string) {
       // if (rule.if.operator !== '==' && rule.if.operator !== '!=')
       //   throw new Error(`Invalid operator: ${rule.operator}`)
 
-      stringParts.push(ifStatement(rule.if.rustString, rule.then.rustString))
+      stringParts.push(ifStatement(rule.if, rule.then))
       if (rule.else) {
-        stringParts.push(elseStatement(rule.else.rustString))
+        stringParts.push(elseStatement(rule.else))
       }
     }
     stringParts.push(processAndWrite(), fnClose)

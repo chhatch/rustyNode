@@ -6,6 +6,8 @@
   "scripts": {
     "build": "tsc",
     "rulesToRust": "node dist/index.js",
+    "buildRuby": "cd ruby_rust && pwd && rake compile",
+    "runRuby": "ruby ruby_rust/rubyRules.rb",
     "buildRust": "cargo build --manifest-path node_rust/Cargo.toml",
     "formatRust": "cargo fmt --manifest-path node_rust/Cargo.toml",
     "runRust": "./node_rust/target/debug/main",

@@ -9,7 +9,12 @@ export const rulesToRust = flow([
   JSON.parse,
   parseRules,
   compileRust(inputPath, outputPath),
-  partial(writeFileSync, rustPath)
+  saveRust
 ])
 
 rulesToRust(rulesPath)
+
+function saveRust(rust: string) {
+  writeFileSync(rustPath, rust)
+  writeFileSync('./ruby_rust/ext/rust_rules/src/rules.rs', rust)
+}

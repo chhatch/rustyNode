@@ -2265,9 +2265,6 @@ node-releases@^2.0.3:
   resolved "https://registry.npmjs.org/node-releases/-/node-releases-2.0.4.tgz"
   integrity sha512-gbMzqQtTtDz/00jQzZ21PQzdI9PyLYqUSvD0p3naOhX4odFji0ZxYdnVwPTxmSwkmxhcFImpozceidSG+AgoPQ==
 
-"node_rust@file:./node_rust/pkg":
-  version "0.1.0"
-
 normalize-path@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/normalize-path/-/normalize-path-3.0.0.tgz"

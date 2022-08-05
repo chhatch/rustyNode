@@ -1,5 +1,5 @@
 {
-  "name": "rustynode",
+  "name": "rules-to-rust",
   "version": "1.0.0",
   "description": "",
   "main": "src/index.js",
@@ -40,8 +40,10 @@
   "dependencies": {
     "expressionparser": "^1.1.5",
     "jest": "^28.1.0",
-    "lodash": "^4.17.21",
-    "node_rust": "file:./node_rust/pkg"
+    "lodash": "^4.17.21"
+  },
+  "bin": {
+    "rulesToRust": "./dist/index.js"
   },
   "type": "commonjs"
 }

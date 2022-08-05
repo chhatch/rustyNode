@@ -5,10 +5,6 @@
   "main": "src/index.js",
   "scripts": {
     "build": "tsc",
-    "rulesToRust": "node dist/index.js",
-    "buildRuby": "cd ruby_rust && rake compile && cd ..",
-    "runRuby": "ruby ruby_rust/rubyRules.rb",
-    "rubyChain": "yarn rulesToRust && yarn buildRuby && yarn runRuby",
     "buildRust": "cargo build --manifest-path node_rust/Cargo.toml",
     "formatRust": "cargo fmt --manifest-path node_rust/Cargo.toml",
     "runRust": "./node_rust/target/debug/main",
@@ -17,7 +13,7 @@
     "lint": "eslint . --ext .ts",
     "format": "prettier --config prettier.config.js 'src/**/*.ts' --write",
     "watch": "tsc --build --watch --preserveWatchOutput",
-    "purge": "rm -rf node_modules && rm -rf dist && rm -rf node_rust/pkg && rm -rf node_rust/target"
+    "purge": "rm -rf node_modules && rm -rf dist"
   },
   "author": "",
   "license": "ISC",
@@ -38,9 +34,6 @@
     "expressionparser": "^1.1.5",
     "jest": "^28.1.0",
     "lodash": "^4.17.21"
-  },
-  "bin": {
-    "rulesToRust": "./dist/index.js"
   },
   "type": "commonjs"
 }

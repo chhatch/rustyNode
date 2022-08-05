@@ -1,6 +1,6 @@
 # rustyNode
 
-`rulesToRust` a cli app that reads json rules and produces a rust program to execute them against json input.
+`rulesToRust` a cli app that reads json rules and produces a rust function to execute them against json input.
 
 ## Installation Prereqs
 
@@ -94,7 +94,7 @@ and this `input.json`,
 }
 ```
 
-running `yarn rulesToRust` will generate a rust program that if run will read `input.json`, executes the rules, and produces this output,
+running `yarn rulesToRust` will generate a rust function that will read `input.json`, executes the rules, and produces this output,
 
 ```json
 {
@@ -126,7 +126,7 @@ and this `input.json`,
 }
 ```
 
-running `yarn rulesToRust` will generate a rust program that if run will read `input.json`, executes the rules, and produces this output,
+running `yarn rulesToRust` will generate a rust function will read `input.json`, execute the rules, and produces this output,
 
 ```json
 {

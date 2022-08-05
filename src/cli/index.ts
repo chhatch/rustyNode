@@ -16,18 +16,6 @@ export function processArgs() {
         type: 'string',
         default: 'rules.json',
         describe: 'Path to read rules from'
-      },
-      inputPath: {
-        alias: 'i',
-        type: 'string',
-        default: 'input.json',
-        describe: 'Path to read input from'
-      },
-      outputPath: {
-        alias: 'o',
-        type: 'string',
-        default: 'output.json',
-        describe: 'Path to write ouput to'
       }
     })
     .alias('h', 'help')

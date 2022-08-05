@@ -1,0 +1,8 @@
+{
+  "node": { "fp": [true] },
+  "rust": [{ "nail": 3 }],
+  "ruby": 5,
+  "day_of_week": "Wednesday",
+  "price": 10,
+  "fee": 2
+}

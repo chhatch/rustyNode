@@ -112,6 +112,6 @@ describe('compileRust', () => {
       }
     )
     console.log(dataStructure)
-    expect(compileRust('input.json', 'output.json')(rules)).toMatchSnapshot()
+    expect(compileRust(rules)).toMatchSnapshot()
   })
 })

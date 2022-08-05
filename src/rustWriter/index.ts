@@ -20,29 +20,27 @@ import {
 } from './utilities'
 
 // temporarily not using paths here
-export function compileRust(inputPath: string, outputPath: string) {
-  return (rules: ParsedRule[]): string => {
-    const stringParts = [
-      imports,
-      buildRustStruct({ dataStructure }),
-      fnOpen,
-      readAndParse()
-    ]
+export function compileRust(rules: ParsedRule[]): string {
+  const stringParts = [
+    imports,
+    buildRustStruct({ dataStructure }),
+    fnOpen,
+    readAndParse()
+  ]
 
-    for (const rule of rules) {
-      if (!rule.if || !rule.then)
-        throw new Error(`Rule must have if and then. Invalid rule: ${rule}`)
-      // if (rule.if.operator !== '==' && rule.if.operator !== '!=')
-      //   throw new Error(`Invalid operator: ${rule.operator}`)
+  for (const rule of rules) {
+    if (!rule.if || !rule.then)
+      throw new Error(`Rule must have if and then. Invalid rule: ${rule}`)
+    // if (rule.if.operator !== '==' && rule.if.operator !== '!=')
+    //   throw new Error(`Invalid operator: ${rule.operator}`)
 
-      stringParts.push(ifStatement(rule.if, rule.then))
-      if (rule.else) {
-        stringParts.push(elseStatement(rule.else))
-      }
+    stringParts.push(ifStatement(rule.if, rule.then))
+    if (rule.else) {
+      stringParts.push(elseStatement(rule.else))
     }
-    stringParts.push(processAndWrite(), fnClose)
-    return stringParts.join('')
   }
+  stringParts.push(processAndWrite(), fnClose)
+  return stringParts.join('')
 }
 
 const rustTypes = {

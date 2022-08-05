@@ -1,11 +1,6 @@
-# hey you!
-
-Just in case you actually want to set up this project, I think there's a bit of a chicken-and-egg problem with building it from scratch.
-The wasm stuff is imported as a node module. We need it for the project to build but it gets build by the project. _shrugs_
-
 # rustyNode
 
-Let's explore using typescript to compile rust from a json template!
+`rulesToRust` a cli app that reads json rules and produces a rust program to execute them against json input.
 
 ## Installation Prereqs
 
@@ -26,7 +21,18 @@ Let's explore using typescript to compile rust from a json template!
 
 `yarn build` will compile typescript to the dist folder
 
+## Usage
+
+`yarn rulesToRust`
+
+### options
+
+- `--rulesPath` Path to rules json file. Default: `'rules.json'`
+- `--rustPath` Path to write rust to. Default: `'src/rules.rs'`
+
 ## Running
+
+these have been moved into `examples`
 
 `yarn rustChain`  
  This will first run `dist/index.js` which reads a single json rule or array of rules from `rules.json` and compiles a rust program to `node_rust/lib.rs` Then `cargo` will format the rust code. Finally the rust program will run, reading data from `input.json`, executing the rules on it, and saving the results to `output.json`
@@ -88,7 +94,7 @@ and this `input.json`,
 }
 ```
 
-running `yarn rustChain` will generate and run a rust program that reads `input.json`, executes the rules, and produces this `output.json`,
+running `yarn rulesToRust` will generate a rust program that if run will read `input.json`, executes the rules, and produces this output,
 
 ```json
 {
@@ -120,7 +126,7 @@ and this `input.json`,
 }
 ```
 
-running `yarn rustChain` will generate and run a rust program that reads `input.json`, executes the rules, and produces this `output.json`,
+running `yarn rulesToRust` will generate a rust program that if run will read `input.json`, executes the rules, and produces this output,
 
 ```json
 {

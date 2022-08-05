@@ -1,7 +1,7 @@
 node_modules
-node_rust/target/
-ruby_rust/ext/rust_rules/target/
+examples/node/target/
+examples/ruby/ext/rust_rules/target/
+examples/ruby/tmp
 dist
 .DS_Store
-ruby_rust/tmp
 **/target/debug

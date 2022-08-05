@@ -3,6 +3,8 @@ import { flow, partial, partialRight } from 'lodash'
 import { compileRust } from './rustWriter/index'
 import { parseRules } from './ruleParser/index'
 import { processArgs } from './cli'
+export { wasm_rules } from 'node_rust'
+
 const { rustPath, rulesPath, inputPath, outputPath } = processArgs()
 export const rulesToRust = flow([
   partialRight(readFileSync, 'utf8'),

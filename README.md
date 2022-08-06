@@ -31,7 +31,7 @@
 
 ## Running
 
-Ideas on how to use this tool can be found in the [examples](/examples/README.md) section.
+Ideas on how to use this tool can be found in the [examples](/examples/) section.
 
 `yarn rustChain`  
  This will first run `dist/index.js` which reads a single json rule or array of rules from `rules.json` and compiles a rust program to `node_rust/lib.rs` Then `cargo` will format the rust code. Finally the rust program will run, reading data from `input.json`, executing the rules on it, and saving the results to `output.json`

@@ -5,10 +5,6 @@
   "main": "src/index.js",
   "scripts": {
     "build": "tsc",
-    "buildRust": "cargo build --manifest-path node_rust/Cargo.toml",
-    "formatRust": "cargo fmt --manifest-path node_rust/Cargo.toml",
-    "runRust": "./node_rust/target/debug/main",
-    "rustChain": "yarn rulesToRust && yarn formatRust && yarn buildRust && yarn runRust",
     "test": "jest",
     "lint": "eslint . --ext .ts",
     "format": "prettier --config prettier.config.js 'src/**/*.ts' --write",

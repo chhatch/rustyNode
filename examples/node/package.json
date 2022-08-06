@@ -10,7 +10,7 @@
     "wasmChain": "yarn rulesToRust && yarn formatRust && yarn buildWasm && rm -rf node_modules && yarn && yarn runWasm"
   },
   "dependencies": {
-    "rules-to-rust": "file:../..",
+    "rulesToRust": "file:../..",
     "rust-wasm": "file:pkg"
   },
   "devDependencies": {

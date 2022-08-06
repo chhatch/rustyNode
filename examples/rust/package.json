@@ -1,0 +1,15 @@
+{
+  "name": "rust",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "buildRust": "cargo build",
+    "formatRust": "cargo fmt",
+    "runRust": "./target/debug/main",
+    "rustChain": "yarn rulesToRust && yarn formatRust && yarn buildRust && yarn runRust"
+  },
+  "dependencies": {
+    "rulesToRust": "file:../.."
+  },
+  "license": "MIT"
+}

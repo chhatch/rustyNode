@@ -1,0 +1,16 @@
+{
+  "node": {
+    "fp": [
+      true
+    ]
+  },
+  "rust": [
+    {
+      "nail": 3.0
+    }
+  ],
+  "ruby": 1337.0,
+  "day_of_week": "Wednesday",
+  "fee": 2.0,
+  "price": 100.0
+}

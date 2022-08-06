@@ -6,11 +6,11 @@
 
 - yarn
 - node (I'm using 16)
+
+And if you actually want to run the generated code
+
 - rust (1.61.0)
 - cargo
-- wasm-pack
-  - `curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh`
-- probably some other stuff
 
 ## Installation
 
@@ -32,13 +32,6 @@
 ## Running
 
 Ideas on how to use this tool can be found in the [examples](/examples/) section.
-
-`yarn rustChain`  
- This will first run `dist/index.js` which reads a single json rule or array of rules from `rules.json` and compiles a rust program to `node_rust/lib.rs` Then `cargo` will format the rust code. Finally the rust program will run, reading data from `input.json`, executing the rules on it, and saving the results to `output.json`
-
-`yarn wasmChain`  
- This will first run `dist/index.js` which reads a single json rule or array of rules from `rules.json` and compiles a rust program to `node_rust/lib.rs` Then `cargo` will format the rust code. `wasm-pack` then compiles our rust to web assembly. The next step is awkward. We have to do and `yarn install` again!
-The wasm code we generated is going to be used in a node module, so we have to install after the rules are converted to rust. Finally, `dist/wasmRules.js` is run reading data from `input.json`, executing the rules on it, and saving the results to `output.json`
 
 ## What's supported?
 

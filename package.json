@@ -35,5 +35,8 @@
     "jest": "^28.1.0",
     "lodash": "^4.17.21"
   },
+  "bin": {
+    "rules-to-rust": "./dist/index.js"
+  },
   "type": "commonjs"
 }

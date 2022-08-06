@@ -6,7 +6,8 @@
     "buildRust": "cargo build",
     "formatRust": "cargo fmt",
     "runRust": "./target/debug/main",
-    "rustChain": "yarn rulesToRust && yarn formatRust && yarn buildRust && yarn runRust"
+    "rustChain": "yarn rulesToRust && yarn formatRust && yarn buildRust && yarn runRust",
+    "purge": "rm -rf node_modules && rm -rf target"
   },
   "dependencies": {
     "rulesToRust": "file:../.."

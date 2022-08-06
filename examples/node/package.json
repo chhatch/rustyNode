@@ -7,7 +7,8 @@
     "formatRust": "cargo fmt",
     "buildWasm": "wasm-pack build ./ --out-name index --target nodejs",
     "runWasm": "node dist/wasmRules.js",
-    "wasmChain": "yarn rulesToRust && yarn formatRust && yarn buildWasm && rm -rf node_modules && yarn && yarn runWasm"
+    "wasmChain": "yarn rulesToRust && yarn formatRust && yarn buildWasm && rm -rf node_modules && yarn && yarn runWasm",
+    "purge": "rm -rf node_modules && rm -rf dist && rm -rf pkg && rm -rf target"
   },
   "dependencies": {
     "rulesToRust": "file:../..",

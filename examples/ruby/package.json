@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "buildRust": "cargo build --manifest-path node_rust/Cargo.toml",
     "buildRuby": "rake compile",
     "runRuby": "ruby rubyRules.rb",
     "rubyChain": "yarn rulesToRust --rustPath ext/rust_rules/src/rules.rs && yarn buildRuby && yarn runRuby",

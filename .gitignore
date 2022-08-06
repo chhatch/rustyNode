@@ -1,5 +1,5 @@
 node_modules
-examples/node/target/
+examples/node/wasm_rules/target/
 examples/rust/target/
 examples/ruby/ext/rust_rules/target/
 examples/ruby/tmp

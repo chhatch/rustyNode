@@ -4,15 +4,11 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "formatRust": "cargo fmt",
-    "buildWasm": "wasm-pack build ./ --out-name index --target nodejs",
     "runWasm": "node dist/wasmRules.js",
-    "wasmChain": "yarn rulesToRust && yarn formatRust && yarn buildWasm && rm -rf node_modules && yarn && yarn runWasm",
-    "purge": "rm -rf node_modules && rm -rf dist && rm -rf pkg && rm -rf target"
+    "purge": "rm -rf node_modules && rm -rf dist && rm -rf wasm_rules/pkg && rm -rf wasm_rules/target"
   },
   "dependencies": {
-    "rulesToRust": "file:../..",
-    "rust-wasm": "file:pkg"
+    "wasm-rules": "file:wasm_rules/pkg"
   },
   "devDependencies": {
     "@types/node": "^17.0.35",

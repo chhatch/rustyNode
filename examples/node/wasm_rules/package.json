@@ -1,0 +1,14 @@
+{
+  "name": "wasm_rules",
+  "version": "1.0.0",
+  "main": "package/index.js",
+  "scripts": {
+    "generateRust": "yarn rulesToRust --rulesPath ../rules.json",
+    "formatRust": "cargo fmt",
+    "buildWasm": "wasm-pack build ./ --out-name index --target nodejs"
+  },
+  "dependencies": {
+    "rulesToRust": "file:../../.."
+  },
+  "license": "MIT"
+}

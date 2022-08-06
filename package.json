@@ -36,7 +36,7 @@
     "lodash": "^4.17.21"
   },
   "bin": {
-    "rules-to-rust": "./dist/index.js"
+    "rulesToRust": "./dist/index.js"
   },
   "type": "commonjs"
 }

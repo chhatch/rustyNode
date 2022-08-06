@@ -11,7 +11,7 @@
     "purge": "rm -rf node_modules && rm ext/rust_rules/src/rules.rs && rm lib/rust_rules/rust_rules.bundle"
   },
   "dependencies": {
-    "rules-to-rust": "file:../.."
+    "rulesToRust": "file:../.."
   },
   "author": "",
   "license": "ISC"
